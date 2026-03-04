@@ -1,7 +1,26 @@
-name: diagonal_wipe_icon_flutter
-description: Flutter port of the Diagonal Wipe Icon Compose project.
-publish_to: 'none'
-version: 1.0.0+1
+name: diagonal_wipe_icon
+description: A Flutter widget for SF Symbols-style icon transitions with diagonal, horizontal, or vertical wipe masks.
+version: 0.1.0
+homepage: https://github.com/bernaferrari/diagonal-wipe-icon
+repository: https://github.com/bernaferrari/diagonal-wipe-icon
+issue_tracker: https://github.com/bernaferrari/diagonal-wipe-icon/issues
+platforms:
+  android:
+  ios:
+  linux:
+  macos:
+  web:
+  windows:
+screenshots:
+  - description: Preview of the diagonal wipe icon transition between two Material icons.
+    path: assets/preview.png
+  - description: Visual explanation of how the wipe mask reveals the destination icon over the source icon.
+    path: assets/how-it-works.png
+topics:
+  - animation
+  - icons
+  - material-design
+  - transitions
 
 environment:
   sdk: '>=3.3.0 <4.0.0'
@@ -10,26 +29,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  material_symbols_icons: ^4.2906.0
-  cupertino_icons: ^1.0.8
-  url_launcher: ^6.3.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^3.0.0
-
-flutter:
-  uses-material-design: true
-  assets:
-    - assets/
-  fonts:
-    - family: MaterialSymbolsOutlined
-      fonts:
-        - asset: packages/material_symbols_icons/fonts/MaterialSymbolsOutlined.ttf
-    - family: MaterialSymbolsRounded
-      fonts:
-        - asset: packages/material_symbols_icons/fonts/MaterialSymbolsRounded.ttf
-    - family: MaterialSymbolsSharp
-      fonts:
-        - asset: packages/material_symbols_icons/fonts/MaterialSymbolsSharp.ttf

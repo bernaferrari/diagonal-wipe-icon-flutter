@@ -1,6 +1,6 @@
 {
-    "name": "diagonal_wipe_icon_flutter",
-    "short_name": "diagonal_wipe_icon_flutter",
+    "name": "diagonal_wipe_icon",
+    "short_name": "diagonal_wipe_icon",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

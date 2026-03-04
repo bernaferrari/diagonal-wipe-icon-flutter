@@ -4,19 +4,15 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/physics.dart';
+import 'package:diagonal_wipe_icon/diagonal_wipe_icon.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import 'curve_safety.dart';
-import 'diagonal_wipe_icon.dart';
 import 'demo_catalog.dart';
-import 'src/material_symbol_name.dart';
-import 'src/symbol_icon_helpers.dart';
 import 'src/ui_constants.dart';
 
 extension _MaterialColorSchemeCompat on ColorScheme {
   Color get appOnBackground => onSurface;
-  Color get appSurface => surface;
   Color get appSurfaceVariant => surfaceContainerHighest;
 }
 
@@ -51,6 +47,14 @@ final _howItWorksDirectionLabels = {
 };
 
 typedef IconTapCallback = void Function(MaterialWipeIconPair pair);
+
+double _composeDialogMaxWidth(BuildContext context) {
+  final viewportWidth = MediaQuery.sizeOf(context).width;
+  final availableWidth = math.max(0.0, viewportWidth - 32.0);
+  // Compose Android Dialog uses a platform-default width; Surface then uses fillMaxWidth(0.94f).
+  final platformDialogWidth = math.min(availableWidth, 560.0);
+  return platformDialogWidth * 0.94;
+}
 
 Future<void> _animateScaleWithSpring(
   AnimationController controller,
@@ -265,6 +269,9 @@ class _DiagonalWipeIconFlutterAppState extends State<DiagonalWipeIconFlutterApp>
       colorScheme: ColorScheme.fromSeed(
         seedColor: selectedSeed.color,
         brightness: _isDark ? Brightness.dark : Brightness.light,
+        dynamicSchemeVariant: selectedSeed.style == ThemeSeedStyle.expressive
+            ? DynamicSchemeVariant.expressive
+            : DynamicSchemeVariant.neutral,
       ),
     );
 
@@ -274,7 +281,7 @@ class _DiagonalWipeIconFlutterAppState extends State<DiagonalWipeIconFlutterApp>
       debugShowCheckedModeBanner: false,
       theme: theme,
       themeAnimationDuration: const Duration(milliseconds: 450),
-      themeAnimationCurve: withSafeCurveEndpoints(Curves.easeInOutCubic),
+      themeAnimationCurve: Curves.easeInOutCubic,
       home: Stack(
         fit: StackFit.expand,
         children: [
@@ -313,45 +320,41 @@ class _DiagonalWipeIconFlutterAppState extends State<DiagonalWipeIconFlutterApp>
                   selectedSeed: selectedSeed,
                   onOpenHowItWorks: _openHowItWorksDialog,
                 ),
-                IgnorePointer(
-                  ignoring: _toolbarIntroController.value <= 0.001,
-                  child: Positioned(
-                    left: 0,
-                    right: 0,
-                    bottom: 0,
-                    child: AnimatedBuilder(
-                      animation: _toolbarIntroController,
-                      builder: (context, _) {
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 16),
-                          child: SizeTransition(
-                            sizeFactor: _toolbarIntroController,
-                            axis: Axis.vertical,
-                            alignment: Alignment.bottomCenter,
-                            child: FadeTransition(
-                              opacity: _toolbarIntroController,
-                              child: SlideTransition(
-                                position: Tween<Offset>(
-                                  begin: const Offset(0, 0.5),
-                                  end: Offset.zero,
-                                ).animate(_toolbarIntroController),
-                                child: Center(
-                                  child: BottomToolbar(
-                                    themeSeedOptions: themeSeedOptions,
-                                    selectedSeedIndex: _selectedSeedIndex,
-                                    onSeedSelected: _selectSeed,
-                                    isSlowMode: _globalAnimationMultiplier > 1,
-                                    onToggleSlowMode: _toggleSlowMode,
-                                    isLooping: _isLooping,
-                                    onToggleLoop: _toggleLoop,
-                                  ),
+                Positioned(
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  child: AnimatedBuilder(
+                    animation: _toolbarIntroController,
+                    builder: (context, _) {
+                      final interactive = _toolbarIntroController.value > 0.001;
+                      return IgnorePointer(
+                        ignoring: !interactive,
+                        child: SafeArea(
+                          minimum: const EdgeInsets.only(bottom: 16),
+                          child: FadeTransition(
+                            opacity: _toolbarIntroController,
+                            child: SlideTransition(
+                              position: Tween<Offset>(
+                                begin: const Offset(0, 0.3),
+                                end: Offset.zero,
+                              ).animate(_toolbarIntroController),
+                              child: Center(
+                                child: BottomToolbar(
+                                  themeSeedOptions: themeSeedOptions,
+                                  selectedSeedIndex: _selectedSeedIndex,
+                                  onSeedSelected: _selectSeed,
+                                  isSlowMode: _globalAnimationMultiplier > 1,
+                                  onToggleSlowMode: _toggleSlowMode,
+                                  isLooping: _isLooping,
+                                  onToggleLoop: _toggleLoop,
                                 ),
                               ),
                             ),
                           ),
-                        );
-                      },
-                    ),
+                        ),
+                      );
+                    },
                   ),
                 ),
               ],
@@ -441,9 +444,7 @@ class _ScaffoldContentState extends State<_ScaffoldContent>
         end: 1.0,
       ).chain(
         CurveTween(
-          curve: withSafeCurveEndpoints(
-            const Interval(0.0, 0.5, curve: Curves.easeOutCubic),
-          ),
+          curve: Curves.easeOutCubic,
         ),
       ),
     );
@@ -649,16 +650,17 @@ class AnimatedTopBar extends StatelessWidget implements PreferredSizeWidget {
     final colors = Theme.of(context).colorScheme;
     final iconColor = colors.appOnBackground;
     return AppBar(
+      centerTitle: false,
       title: Opacity(
         opacity: scrollTitleAlpha,
         child: Text(
-          'Diagonal Wipe Icons',
+          'Diagonal Wipe Icons for Flutter',
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.w600,
               ),
         ),
       ),
-      backgroundColor: colors.appSurface.withValues(alpha: 0.95),
+      backgroundColor: colors.surface.withValues(alpha: 0.95),
       surfaceTintColor: Colors.transparent,
       elevation: 0,
       actions: [
@@ -690,7 +692,7 @@ class AnimatedTopBar extends StatelessWidget implements PreferredSizeWidget {
                   size: 22,
                 ),
               ),
-              const SizedBox(width: 4),
+              const SizedBox(width: 8),
               IconButton(
                 tooltip: 'Open GitHub',
                 onPressed: onOpenGitHub,
@@ -714,7 +716,7 @@ class AnimatedTopBar extends StatelessWidget implements PreferredSizeWidget {
                   size: 22,
                 ),
               ),
-              const SizedBox(width: 4),
+              const SizedBox(width: 8),
               IconButton(
                 tooltip:
                     isDark ? 'Switch to light mode' : 'Switch to dark mode',
@@ -812,9 +814,9 @@ class _HeroSectionState extends State<HeroSection>
       disabledIcon: MaterialSymbolName.wifiOff,
     ),
     MaterialWipeIconPair.symbols(
-      label: 'Mic',
-      enabledIcon: MaterialSymbolName.mic,
-      disabledIcon: MaterialSymbolName.micOff,
+      label: 'Cloud',
+      enabledIcon: MaterialSymbolName.cloud,
+      disabledIcon: MaterialSymbolName.cloudOff,
     ),
     MaterialWipeIconPair.symbols(
       label: 'Warning',
@@ -847,6 +849,14 @@ class _HeroSectionState extends State<HeroSection>
       child: Stack(
         children: [
           Positioned.fill(
+            child: CustomPaint(
+              painter: _HeroMeshBackgroundPainter(
+                backgroundColor: Theme.of(context).colorScheme.surface,
+                seedColor: widget.accentColor,
+              ),
+            ),
+          ),
+          Positioned.fill(
             child: _AnimatedHeroOrbs(accentColor: widget.accentColor),
           ),
           Padding(
@@ -875,7 +885,7 @@ class _HeroSectionState extends State<HeroSection>
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'Elegant morphing transitions for Material Design',
+                        'Elegant morphing transitions for icons in Flutter',
                         style:
                             Theme.of(context).textTheme.titleMedium?.copyWith(
                                   fontWeight: FontWeight.w500,
@@ -994,6 +1004,38 @@ class _HeroOrbsPainter extends CustomPainter {
   bool shouldRepaint(covariant _HeroOrbsPainter oldDelegate) =>
       oldDelegate.accentColor != accentColor ||
       oldDelegate.orbitPhase != orbitPhase;
+}
+
+class _HeroMeshBackgroundPainter extends CustomPainter {
+  const _HeroMeshBackgroundPainter({
+    required this.backgroundColor,
+    required this.seedColor,
+  });
+
+  final Color backgroundColor;
+  final Color seedColor;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    canvas.drawRect(Offset.zero & size, Paint()..color = backgroundColor);
+    canvas.drawRect(
+      Offset.zero & size,
+      Paint()
+        ..shader = RadialGradient(
+          colors: [
+            seedColor.withValues(alpha: 0.025),
+            Colors.transparent,
+          ],
+          center: Alignment.center,
+          radius: 0.7,
+        ).createShader(Offset.zero & size),
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant _HeroMeshBackgroundPainter oldDelegate) =>
+      oldDelegate.backgroundColor != backgroundColor ||
+      oldDelegate.seedColor != seedColor;
 }
 
 class HeroIconShowcase extends StatelessWidget {
@@ -1136,9 +1178,9 @@ class _HeroIconButtonState extends State<HeroIconButton>
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
-    final showBorder = _hovered;
 
     return MouseRegion(
+      cursor: SystemMouseCursors.click,
       onEnter: (_) => _setHovered(true),
       onExit: (_) => _setHovered(false),
       child: GestureDetector(
@@ -1156,14 +1198,14 @@ class _HeroIconButtonState extends State<HeroIconButton>
             );
           },
           child: AnimatedContainer(
-            duration: const Duration(milliseconds: 240),
+            duration: const Duration(milliseconds: 200),
             curve: Curves.easeOut,
             width: widget.size,
             height: widget.size,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(22),
               color: colors.appSurfaceVariant.withValues(alpha: 0.5),
-              border: showBorder
+              border: _hovered
                   ? Border.all(
                       color: colors.outline.withValues(alpha: 0.5),
                       width: 1.5,
@@ -1220,6 +1262,37 @@ class DiagonalWipeIconGridDemo extends StatefulWidget {
 }
 
 class _DiagonalWipeIconGridDemoState extends State<DiagonalWipeIconGridDemo> {
+  final Map<int, List<List<List<MaterialWipeIconPair>>>> _rowsByColumns = {};
+  final Map<int, int> _itemCountByColumns = {};
+
+  List<List<List<MaterialWipeIconPair>>> _sectionRowsForColumns(int columns) {
+    return _rowsByColumns.putIfAbsent(columns, () {
+      final rowsBySection = <List<List<MaterialWipeIconPair>>>[];
+      for (final section in iconSections) {
+        final rows = <List<MaterialWipeIconPair>>[];
+        for (var i = 0; i < section.icons.length; i += columns) {
+          final end = (i + columns).clamp(0, section.icons.length);
+          rows.add(section.icons.sublist(i, end));
+        }
+        rowsBySection.add(rows);
+      }
+      return rowsBySection;
+    });
+  }
+
+  int _itemCountForColumns(int columns) {
+    return _itemCountByColumns.putIfAbsent(columns, () {
+      final sectionRows = _sectionRowsForColumns(columns);
+      var itemCount = 1; // grid header
+      for (final rows in sectionRows) {
+        itemCount += 1; // section header
+        itemCount += rows.length; // section rows
+        itemCount += 1; // section gap
+      }
+      return itemCount;
+    });
+  }
+
   @override
   void didUpdateWidget(covariant DiagonalWipeIconGridDemo oldWidget) {
     super.didUpdateWidget(oldWidget);
@@ -1250,74 +1323,75 @@ class _DiagonalWipeIconGridDemoState extends State<DiagonalWipeIconGridDemo> {
             .clamp(uiGridItemSlotWidth, double.infinity);
         final columns =
             (contentWidth / uiGridItemSlotWidth).toInt().clamp(1, 20);
-        final itemBuilders = <Widget>[];
-        itemBuilders.add(
-          Align(
-            alignment: Alignment.topCenter,
-            child: widget.gridHeader,
-          ),
-        );
+        final sectionRows = _sectionRowsForColumns(columns);
+        final itemCount = _itemCountForColumns(columns);
 
-        for (var sectionIndex = 0;
-            sectionIndex < iconSections.length;
-            sectionIndex++) {
-          final section = iconSections[sectionIndex];
-          itemBuilders.add(
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
-              child: MaterialWipeIconSectionHeader(
-                section: section,
-                topPadding: sectionIndex == 0 ? 0 : 16,
-                bottomPadding: 16,
-              ),
-            ),
-          );
-
-          final rows = <List<MaterialWipeIconPair>>[];
-          for (var i = 0; i < section.icons.length; i += columns) {
-            final end = (i + columns).clamp(0, section.icons.length);
-            rows.add(section.icons.sublist(i, end));
-          }
-
-          for (final row in rows) {
-            itemBuilders.add(
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: row
-                      .map(
-                        (pair) => DiagonalWipeIconGridItem(
-                          iconPair: pair,
-                          animationMultiplier: widget.animationMultiplier,
-                          allIconsWiped: widget.allIconsWiped,
-                          isLooping: widget.isLooping,
-                          accentColor: widget.accentColor,
-                          onOpen: () => widget.onIconTap(pair),
-                        ),
-                      )
-                      .toList(),
-                ),
-              ),
-            );
-          }
-          itemBuilders.add(const SizedBox(height: 20));
-        }
-
-        final separatedChildren = <Widget>[];
-        for (var i = 0; i < itemBuilders.length; i++) {
-          separatedChildren.add(itemBuilders[i]);
-          if (i != itemBuilders.length - 1) {
-            separatedChildren.add(const SizedBox(height: 12));
-          }
-        }
-
-        return ListView.builder(
+        return ListView.separated(
           controller: widget.scrollController,
           padding: const EdgeInsets.only(top: 0, bottom: 48),
-          itemCount: separatedChildren.length,
-          itemBuilder: (context, index) => separatedChildren[index],
+          itemCount: itemCount,
+          separatorBuilder: (_, __) => const SizedBox(height: 12),
+          itemBuilder: (context, index) {
+            var remaining = index;
+            if (remaining == 0) {
+              return Align(
+                alignment: Alignment.topCenter,
+                child: widget.gridHeader,
+              );
+            }
+            remaining -= 1;
+
+            for (var sectionIndex = 0;
+                sectionIndex < iconSections.length;
+                sectionIndex++) {
+              final section = iconSections[sectionIndex];
+              final rows = sectionRows[sectionIndex];
+
+              if (remaining == 0) {
+                return Padding(
+                  padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+                  child: MaterialWipeIconSectionHeader(
+                    section: section,
+                    topPadding: sectionIndex == 0 ? 24 : 16,
+                    bottomPadding: 16,
+                  ),
+                );
+              }
+              remaining -= 1;
+
+              if (remaining < rows.length) {
+                final row = rows[remaining];
+                return Padding(
+                  padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: row
+                        .map(
+                          (pair) => DiagonalWipeIconGridItem(
+                            key: ValueKey(pair.label),
+                            iconPair: pair,
+                            animationMultiplier: widget.animationMultiplier,
+                            allIconsWiped: widget.allIconsWiped,
+                            isLooping: widget.isLooping,
+                            accentColor: widget.accentColor,
+                            onOpen: () => widget.onIconTap(pair),
+                          ),
+                        )
+                        .toList(),
+                  ),
+                );
+              }
+              remaining -= rows.length;
+
+              if (remaining == 0) {
+                return const SizedBox(height: 20);
+              }
+              remaining -= 1;
+            }
+
+            return const SizedBox.shrink();
+          },
         );
       },
     );
@@ -1397,8 +1471,8 @@ class _DiagonalWipeIconGridItemState extends State<DiagonalWipeIconGridItem>
   bool _pressed = false;
   late final AnimationController _scaleController = AnimationController(
     vsync: this,
-    lowerBound: 0.9,
-    upperBound: 1.1,
+    lowerBound: 0.95,
+    upperBound: 1.0,
     value: 1,
   );
 
@@ -1416,7 +1490,7 @@ class _DiagonalWipeIconGridItemState extends State<DiagonalWipeIconGridItem>
     }
   }
 
-  double get _targetScale => _pressed ? 0.95 : 1;
+  double get _targetScale => _pressed ? 0.95 : 1.0;
 
   void _setPressed(bool value) {
     if (_pressed == value) return;
@@ -1427,7 +1501,7 @@ class _DiagonalWipeIconGridItemState extends State<DiagonalWipeIconGridItem>
   void _setHovered(bool value) {
     if (_hovered == value) return;
     setState(() => _hovered = value);
-    _animateScale();
+    // Note: No scale animation on hover in Compose - only on press
   }
 
   void _animateScale() {
@@ -1435,7 +1509,7 @@ class _DiagonalWipeIconGridItemState extends State<DiagonalWipeIconGridItem>
     _animateScaleWithSpring(
       _scaleController,
       targetScale,
-      stiffness: 200,
+      stiffness: 500,
       dampingRatio: 0.5,
     );
   }
@@ -1472,9 +1546,9 @@ class _DiagonalWipeIconGridItemState extends State<DiagonalWipeIconGridItem>
     return Semantics(
       button: true,
       label: widget.iconPair.label,
-      child: SizedBox(
-        width: uiGridItemSlotWidth,
+      child: RepaintBoundary(
         child: MouseRegion(
+          cursor: SystemMouseCursors.click,
           onEnter: (_) => _setHovered(true),
           onExit: (_) => _setHovered(false),
           child: GestureDetector(
@@ -1487,47 +1561,70 @@ class _DiagonalWipeIconGridItemState extends State<DiagonalWipeIconGridItem>
               builder: (_, child) => Transform.scale(
                 alignment: Alignment.center,
                 scale: _scaleController.value,
+                filterQuality: FilterQuality.high,
                 child: child,
               ),
-              child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    AnimatedContainer(
-                      duration: const Duration(milliseconds: 200),
-                      curve: Curves.ease,
-                      width: 80,
-                      height: 80,
-                      padding: const EdgeInsets.all(18),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20),
-                        color: iconBgColor,
-                        border: Border.all(
-                          color: borderColor,
-                          width: (_hovered || _pressed) ? 1.5 : 0,
+              child: SizedBox(
+                width: uiGridItemSlotWidth,
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      AnimatedContainer(
+                        duration: const Duration(milliseconds: 200),
+                        curve: Curves.ease,
+                        width: 80,
+                        height: 80,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(20),
+                          color: iconBgColor,
+                        ),
+                        child: Stack(
+                          fit: StackFit.expand,
+                          children: [
+                            Center(
+                              child: Padding(
+                                padding: const EdgeInsets.all(18),
+                                child: DiagonalWipeIcon.fromMotion(
+                                  isWiped: isWiped,
+                                  baseIcon: materialSymbolIconBuilder(
+                                    widget.iconPair.enabledIcon,
+                                  ),
+                                  wipedIcon: materialSymbolIconBuilder(
+                                    widget.iconPair.disabledIcon,
+                                  ),
+                                  baseTint:
+                                      Theme.of(context).colorScheme.primary,
+                                  wipedTint:
+                                      Theme.of(context).colorScheme.secondary,
+                                  size: 44,
+                                  motion: motion,
+                                ),
+                              ),
+                            ),
+                            Positioned.fill(
+                              child: IgnorePointer(
+                                child: AnimatedContainer(
+                                  duration: const Duration(milliseconds: 200),
+                                  curve: Curves.ease,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(20),
+                                    border: Border.all(
+                                      color: borderColor,
+                                      width: (_hovered || _pressed) ? 1.5 : 0,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                      alignment: Alignment.center,
-                      child: DiagonalWipeIcon.fromMotion(
-                        isWiped: isWiped,
-                        baseIcon: materialSymbolIconBuilder(
-                          widget.iconPair.enabledIcon,
-                        ),
-                        wipedIcon: materialSymbolIconBuilder(
-                          widget.iconPair.disabledIcon,
-                        ),
-                        baseTint: Theme.of(context).colorScheme.primary,
-                        wipedTint: Theme.of(context).colorScheme.secondary,
-                        size: 44,
-                        motion: motion,
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    SizedBox(
-                      width: uiGridItemSlotWidth,
-                      child: Text(
+                      const SizedBox(height: 20),
+                      Text(
                         widget.iconPair.label,
                         textAlign: TextAlign.center,
                         maxLines: 1,
@@ -1538,8 +1635,8 @@ class _DiagonalWipeIconGridItemState extends State<DiagonalWipeIconGridItem>
                                   _hovered ? FontWeight.w600 : FontWeight.w500,
                             ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -1631,8 +1728,8 @@ class BottomToolbar extends StatelessWidget {
                         ),
                       ),
                     ),
-                    const SizedBox(width: 12),
                     TextButton(
+                      key: const ValueKey('toolbar-speed-toggle'),
                       onPressed: onToggleSlowMode,
                       style: TextButton.styleFrom(
                         foregroundColor: isSlowMode
@@ -1662,8 +1759,9 @@ class BottomToolbar extends StatelessWidget {
                         ],
                       ),
                     ),
-                    const SizedBox(width: 12),
+                    const SizedBox(width: 8),
                     FilledButton.tonal(
+                      key: const ValueKey('toolbar-loop-toggle'),
                       onPressed: () => onToggleLoop(!isLooping),
                       style: FilledButton.styleFrom(
                         backgroundColor: isLooping
@@ -1729,10 +1827,10 @@ class _ThemeColorSwatchState extends State<_ThemeColorSwatch>
     with TickerProviderStateMixin {
   bool _hovered = false;
   bool _pressed = false;
-  late final AnimationController _pressScaleController = AnimationController(
+  late final AnimationController _scaleController = AnimationController(
     vsync: this,
-    lowerBound: 0.9,
-    upperBound: 1.2,
+    lowerBound: 0.93,
+    upperBound: 1.04,
     value: 1,
   );
   late final AnimationController _selectionController = AnimationController(
@@ -1744,7 +1842,7 @@ class _ThemeColorSwatchState extends State<_ThemeColorSwatch>
 
   @override
   void dispose() {
-    _pressScaleController.dispose();
+    _scaleController.dispose();
     _selectionController.dispose();
     super.dispose();
   }
@@ -1777,7 +1875,7 @@ class _ThemeColorSwatchState extends State<_ThemeColorSwatch>
   void _animatePressScale() {
     final double targetScale = _pressScaleTarget;
     _animateScaleWithSpring(
-      _pressScaleController,
+      _scaleController,
       targetScale,
       stiffness: 700,
       dampingRatio: 0.6,
@@ -1797,17 +1895,21 @@ class _ThemeColorSwatchState extends State<_ThemeColorSwatch>
   @override
   Widget build(BuildContext context) {
     final bool showSelected = widget.selected;
-    final bool highContrastText = widget.seed.color.computeLuminance() > 0.5;
+    final Color swatchColor = widget.seed.color;
+    final bool highContrastText = (0.2126 * swatchColor.r +
+            0.7152 * swatchColor.g +
+            0.0722 * swatchColor.b) >
+        0.5;
     final double selectionProgress = _selectionController.value.clamp(0.0, 1.0);
-    final double cornerRadius = 9.5 + (9.5 * selectionProgress);
-    final double glowDiameter = 54 * (0.94 + 0.06 * selectionProgress);
+    final double cornerRadius = 8 + (8 * selectionProgress);
+    const double glowDiameter = 54;
     final double orbScale = 0.84 + (0.16 * selectionProgress);
-    final double orbSize = 27 + (5 * selectionProgress);
+    const double orbSize = 32;
     final double rotation = 8 * selectionProgress;
     final double checkOpacity = selectionProgress;
     final double glowOpacity = selectionProgress;
-    final Color checkColor = highContrastText ? Colors.black87 : Colors.white;
-    final double borderWidth = showSelected ? 1.2 : 0;
+    final Color checkColor =
+        highContrastText ? Colors.black.withValues(alpha: 0.75) : Colors.white;
 
     return Semantics(
       button: true,
@@ -1817,6 +1919,7 @@ class _ThemeColorSwatchState extends State<_ThemeColorSwatch>
           ? 'Current theme selection'
           : 'Select ${widget.seed.name} theme',
       child: MouseRegion(
+        cursor: SystemMouseCursors.click,
         onEnter: (_) => _setHovered(true),
         onExit: (_) => _setHovered(false),
         child: GestureDetector(
@@ -1825,10 +1928,10 @@ class _ThemeColorSwatchState extends State<_ThemeColorSwatch>
           onTapCancel: () => _setPressed(false),
           onTap: widget.onTap,
           child: AnimatedBuilder(
-            animation: _pressScaleController,
+            animation: _scaleController,
             builder: (_, child) => Transform.scale(
               alignment: Alignment.center,
-              scale: _pressScaleController.value,
+              scale: _scaleController.value,
               child: child,
             ),
             child: AnimatedBuilder(
@@ -1862,24 +1965,6 @@ class _ThemeColorSwatchState extends State<_ThemeColorSwatch>
                           decoration: BoxDecoration(
                             color: widget.seed.color,
                             borderRadius: BorderRadius.circular(cornerRadius),
-                            boxShadow: showSelected
-                                ? [
-                                    BoxShadow(
-                                      color: widget.seed.color.withValues(
-                                        alpha: 0.35,
-                                      ),
-                                      blurRadius: 8,
-                                      spreadRadius: 1,
-                                    ),
-                                  ]
-                                : [],
-                            border: showSelected
-                                ? Border.all(
-                                    color:
-                                        Theme.of(context).colorScheme.onSurface,
-                                    width: borderWidth,
-                                  )
-                                : null,
                           ),
                           alignment: Alignment.center,
                           child: Stack(
@@ -1950,6 +2035,7 @@ class _IconPreviewDialogState extends State<IconPreviewDialog> {
   bool _pausedTapWiped = false;
   bool _hasHoveredWhilePaused = false;
   bool _isCopyFeedback = false;
+  bool _copyHovered = false;
   int _loopToken = 0;
   async.Timer? _loopDelayTimer;
   async.Timer? _copyResetTimer;
@@ -2102,87 +2188,56 @@ class _IconPreviewDialogState extends State<IconPreviewDialog> {
   @override
   Widget build(BuildContext context) {
     final snippet = buildDiagonalWipeUsageSnippet(widget.iconPair);
+    final dialogMaxWidth = _composeDialogMaxWidth(context);
+    final contentMaxWidth = math.min(dialogMaxWidth, 620.0);
+    final dialogMaxHeight = MediaQuery.sizeOf(context).height * 0.94;
     return Dialog(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(28),
       ),
       backgroundColor: Theme.of(context).colorScheme.surface,
       insetPadding: const EdgeInsets.all(16),
-      child: LayoutBuilder(
-        builder: (context, layoutConstraints) {
-          final dialogWidth = (layoutConstraints.maxWidth.isFinite
-                  ? layoutConstraints.maxWidth
-                  : 760.0)
-              .clamp(320.0, 840.0)
-              .toDouble();
-          final maxContentHeight = (layoutConstraints.maxHeight.isFinite
-                  ? layoutConstraints.maxHeight
-                  : 720.0)
-              .clamp(260.0, 840.0)
-              .toDouble();
-          return ConstrainedBox(
-            constraints: BoxConstraints(
-              maxWidth: dialogWidth,
-              maxHeight: maxContentHeight,
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(32),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Expanded(
-                    child: SingleChildScrollView(
-                      child: LayoutBuilder(
-                        builder: (context, contentConstraints) {
-                          final useWide = contentConstraints.maxWidth >= 780;
-                          return Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              if (useWide)
-                                Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Expanded(
-                                      child: _previewControls(context, snippet),
-                                    ),
-                                    const SizedBox(width: 16),
-                                    Expanded(
-                                      child: _codePane(context, snippet),
-                                    ),
-                                  ],
-                                )
-                              else
-                                Column(
-                                  children: [
-                                    _previewControls(context, snippet),
-                                    const SizedBox(height: 16),
-                                    _codePane(context, snippet),
-                                  ],
-                                ),
-                            ],
-                          );
-                        },
-                      ),
-                    ),
+      child: ConstrainedBox(
+        constraints: BoxConstraints(
+          maxWidth: dialogMaxWidth,
+          maxHeight: dialogMaxHeight,
+        ),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(32),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Align(
+                alignment: Alignment.topCenter,
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(maxWidth: contentMaxWidth),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      _previewControls(context),
+                      const SizedBox(height: 16),
+                      _codePane(context, snippet),
+                    ],
                   ),
-                  const SizedBox(height: 18),
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: TextButton(
-                      onPressed: () => Navigator.of(context).pop(),
-                      child: const Text('Close'),
-                    ),
-                  ),
-                ],
+                ),
               ),
-            ),
-          );
-        },
+              const SizedBox(height: 18),
+              Align(
+                alignment: Alignment.centerRight,
+                child: TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: const Text('Close'),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
 
-  Widget _previewControls(BuildContext context, String snippet) {
+  Widget _previewControls(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
@@ -2194,6 +2249,7 @@ class _IconPreviewDialogState extends State<IconPreviewDialog> {
         ),
         const SizedBox(height: 24),
         MouseRegion(
+          cursor: SystemMouseCursors.click,
           onEnter: (_) => _setPreviewHovered(true),
           onExit: (_) => _setPreviewHovered(false),
           child: GestureDetector(
@@ -2232,7 +2288,7 @@ class _IconPreviewDialogState extends State<IconPreviewDialog> {
             ),
           ),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 24),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -2257,7 +2313,6 @@ class _IconPreviewDialogState extends State<IconPreviewDialog> {
 
   Widget _codePane(BuildContext context, String snippet) {
     return Container(
-      constraints: const BoxConstraints(minHeight: 180, maxHeight: 320),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
         color: Theme.of(context)
@@ -2265,55 +2320,72 @@ class _IconPreviewDialogState extends State<IconPreviewDialog> {
             .surfaceContainerHighest
             .withValues(alpha: 0.3),
       ),
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
           Row(
             children: [
-              const Expanded(
+              Expanded(
                 child: Text(
                   'Code',
-                  style: TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 18,
-                  ),
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
                 ),
               ),
-              InkWell(
-                borderRadius: BorderRadius.circular(10),
-                onTap: () => _copyCode(snippet),
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
-                  width: 36,
-                  height: 36,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(10),
-                    color: _isCopyFeedback
-                        ? Theme.of(context).colorScheme.surface
-                        : Colors.transparent,
-                  ),
-                  child: Icon(
-                    _isCopyFeedback ? Symbols.check : Symbols.content_copy,
-                    size: 20,
-                    color: _isCopyFeedback
-                        ? Theme.of(context).colorScheme.primary
-                        : Theme.of(context).colorScheme.onSurfaceVariant,
+              MouseRegion(
+                cursor: SystemMouseCursors.click,
+                onEnter: (_) {
+                  if (_copyHovered) return;
+                  setState(() => _copyHovered = true);
+                },
+                onExit: (_) {
+                  if (!_copyHovered) return;
+                  setState(() => _copyHovered = false);
+                },
+                child: GestureDetector(
+                  onTap: () => _copyCode(snippet),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    width: 36,
+                    height: 36,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(8),
+                      color: (_isCopyFeedback || _copyHovered)
+                          ? Theme.of(context).colorScheme.surface
+                          : Colors.transparent,
+                    ),
+                    child: Icon(
+                      _isCopyFeedback ? Symbols.check : Symbols.content_copy,
+                      size: 20,
+                      color: _isCopyFeedback
+                          ? Theme.of(context).colorScheme.primary
+                          : Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
                   ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 10),
-          SingleChildScrollView(
-            scrollDirection: Axis.vertical,
-            child: SelectableText(
-              snippet,
-              style: Theme.of(context)
-                  .textTheme
-                  .bodyMedium
-                  ?.copyWith(fontSize: 13),
+          const SizedBox(height: 16),
+          Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(16),
+              color: Theme.of(context).colorScheme.surface,
+            ),
+            constraints: const BoxConstraints(minHeight: 180, maxHeight: 320),
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(16),
+              child: SyntaxHighlightedCode(
+                code: snippet,
+                style: Theme.of(context)
+                    .textTheme
+                    .bodyMedium
+                    ?.copyWith(fontSize: 13),
+              ),
             ),
           ),
         ],
@@ -2345,8 +2417,8 @@ class _PreviewDialogControlState extends State<_PreviewDialogControl>
   bool _pressed = false;
   late final AnimationController _scaleController = AnimationController(
     vsync: this,
-    lowerBound: 0.9,
-    upperBound: 1.1,
+    lowerBound: 0.95,
+    upperBound: 1.0,
     value: 1,
   );
 
@@ -2356,7 +2428,7 @@ class _PreviewDialogControlState extends State<_PreviewDialogControl>
     super.dispose();
   }
 
-  double get _scaleTarget => _pressed ? 0.95 : (_hovered ? 1 : 1);
+  double get _scaleTarget => _pressed ? 0.95 : 1.0;
 
   void _setPressed(bool value) {
     if (_pressed == value) return;
@@ -2367,7 +2439,6 @@ class _PreviewDialogControlState extends State<_PreviewDialogControl>
   void _setHovered(bool value) {
     if (_hovered == value) return;
     setState(() => _hovered = value);
-    _animateScale();
   }
 
   void _animateScale() {
@@ -2375,8 +2446,8 @@ class _PreviewDialogControlState extends State<_PreviewDialogControl>
     _animateScaleWithSpring(
       _scaleController,
       targetScale,
-      stiffness: 200,
-      dampingRatio: 0.5,
+      stiffness: 500,
+      dampingRatio: 1,
     );
   }
 
@@ -2399,6 +2470,7 @@ class _PreviewDialogControlState extends State<_PreviewDialogControl>
         onTapCancel: () => _setPressed(false),
         onTap: widget.onPressed,
         child: MouseRegion(
+          cursor: SystemMouseCursors.click,
           onEnter: (_) => _setHovered(true),
           onExit: (_) => _setHovered(false),
           child: AnimatedBuilder(
@@ -2412,7 +2484,7 @@ class _PreviewDialogControlState extends State<_PreviewDialogControl>
               duration: const Duration(milliseconds: 200),
               curve: Curves.easeOut,
               height: 44,
-              padding: const EdgeInsets.symmetric(horizontal: 14),
+              padding: const EdgeInsets.symmetric(horizontal: 16),
               decoration: BoxDecoration(
                 color: background,
                 borderRadius: BorderRadius.circular(12),
@@ -2459,6 +2531,9 @@ class _HowItWorksDialogState extends State<HowItWorksDialog>
     with TickerProviderStateMixin {
   static const _flowFrameHeight = 100.0;
   static const _flowSquareSize = 64.0;
+  static const _howItWorksAnimationMultiplier = slowAnimationMultiplier;
+  static const _howItWorksWipeInCurve = Cubic(0.33, 0.0, 0.67, 1.0);
+  static const _howItWorksWipeOutCurve = Cubic(0.33, 0.0, 0.67, 1.0);
 
   late WipeDirection _direction = widget.initialDirection;
   int _loopToken = 0;
@@ -2478,52 +2553,54 @@ class _HowItWorksDialogState extends State<HowItWorksDialog>
   @override
   void dispose() {
     _loopToken++;
+    _progressController.stop();
     _progressController.dispose();
     super.dispose();
   }
 
   int _durationForIn() {
-    return autoPlayDelay(wipeInDurationMillis, slowAnimationMultiplier);
+    return scaledDuration(wipeInDurationMillis, _howItWorksAnimationMultiplier);
   }
 
   int _durationForOut() {
-    return autoPlayDelay(wipeOutDurationMillis, slowAnimationMultiplier);
+    return scaledDuration(
+        wipeOutDurationMillis, _howItWorksAnimationMultiplier);
   }
 
   void _startLoop() {
     _loopToken++;
+    _progressController.stop();
     final int token = _loopToken;
     _runLoop(token);
   }
 
-  Future<void> _animateToTarget(double targetValue) {
-    return _animateScaleWithSpring(
-      _progressController,
-      targetValue,
-      stiffness: slowAnimationMultiplier > 1 ? 50.0 : 200.0,
-      dampingRatio: 1,
+  Future<void> _animateToTarget(
+    double targetValue,
+    int durationMillis,
+    Curve curve,
+  ) {
+    return _progressController.animateTo(
+      targetValue.clamp(0.0, 1.0),
+      duration: Duration(milliseconds: durationMillis),
+      curve: curve,
     );
-  }
-
-  Future<bool> _awaitDelay(int delayMillis, int token) {
-    if (!mounted || token != _loopToken) return Future.value(false);
-    return Future<void>.delayed(Duration(milliseconds: delayMillis))
-        .then((_) => mounted && token == _loopToken);
   }
 
   Future<void> _runLoop(int token) async {
     while (mounted && token == _loopToken) {
-      try {
-        await _animateToTarget(1);
-        if (!mounted || token != _loopToken) return;
-        if (!await _awaitDelay(_durationForIn(), token)) return;
+      await _animateToTarget(
+        1,
+        _durationForIn(),
+        _howItWorksWipeInCurve,
+      );
+      if (!mounted || token != _loopToken) return;
 
-        await _animateToTarget(0);
-        if (!mounted || token != _loopToken) return;
-        if (!await _awaitDelay(_durationForOut(), token)) return;
-      } on TickerCanceled {
-        return;
-      }
+      await _animateToTarget(
+        0,
+        _durationForOut(),
+        _howItWorksWipeOutCurve,
+      );
+      if (!mounted || token != _loopToken) return;
     }
   }
 
@@ -2531,99 +2608,68 @@ class _HowItWorksDialogState extends State<HowItWorksDialog>
   Widget build(BuildContext context) {
     final allowedColor = Theme.of(context).colorScheme.primary;
     final blockedColor = Theme.of(context).colorScheme.secondary;
+    final dialogMaxWidth = _composeDialogMaxWidth(context);
 
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final maxDialogHeight =
-            (constraints.maxHeight - 32).clamp(220.0, 980.0).toDouble();
-        final maxDialogWidth =
-            (constraints.maxWidth * 0.94).clamp(340.0, 840.0).toDouble();
-        return Dialog(
-          insetPadding:
-              const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(28),
-          ),
-          backgroundColor: Theme.of(context).colorScheme.surface,
-          child: ConstrainedBox(
-            constraints: BoxConstraints(
-              maxWidth: maxDialogWidth,
-              maxHeight: maxDialogHeight,
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(32),
-              child: Column(
+    return Dialog(
+      insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(28),
+      ),
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      child: ConstrainedBox(
+        constraints: BoxConstraints(
+          maxWidth: dialogMaxWidth,
+          maxHeight: MediaQuery.sizeOf(context).height * 0.94,
+        ),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(32),
+          child: AnimatedBuilder(
+            animation: _progressController,
+            builder: (context, _) {
+              final progress = _progressController.value.clamp(0.0, 1.0);
+              return Column(
                 mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Expanded(
-                    child: SingleChildScrollView(
-                      child: AnimatedBuilder(
-                        animation: _progressController,
-                        builder: (context, _) {
-                          final progress =
-                              _progressController.value.clamp(0.0, 1.0);
-                          return Column(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'How it works',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .headlineSmall
-                                    ?.copyWith(
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                              ),
-                              const SizedBox(height: 20),
-                              Text(
-                                'SF Symbols has built-in symbol transitions. '
-                                'Material Icons does not, so this gives you the same '
-                                'kind of morph without hand-drawing a custom vector.',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodyMedium
-                                    ?.copyWith(
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .onSurfaceVariant,
-                                    ),
-                              ),
-                              const SizedBox(height: 20),
-                              _howItWorksDirectionSelector(
-                                direction: _direction,
-                                onDirectionChange: (value) {
-                                  setState(() => _direction = value);
-                                  widget.onDirectionChanged(value);
-                                },
-                              ),
-                              const SizedBox(height: 20),
-                              _howItWorksFlow(
-                                allowedColor,
-                                blockedColor,
-                                progress,
-                              ),
-                              const SizedBox(height: 20),
-                              Text(
-                                'Use two icons and one animated mask. It is much '
-                                'easier and faster than building and maintaining '
-                                'custom vector paths by hand.',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodyMedium
-                                    ?.copyWith(
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .onSurfaceVariant,
-                                    ),
-                              ),
-                              const SizedBox(height: 20),
-                            ],
-                          );
-                        },
-                      ),
-                    ),
+                  Text(
+                    'How it works',
+                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
                   ),
+                  const SizedBox(height: 20),
+                  Text(
+                    'SF Symbols has built-in symbol transitions. '
+                    'Material Icons does not, so this gives you the same '
+                    'kind of morph without hand-drawing a custom vector.',
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                  ),
+                  const SizedBox(height: 20),
+                  _howItWorksDirectionSelector(
+                    direction: _direction,
+                    onDirectionChange: (value) {
+                      setState(() => _direction = value);
+                      widget.onDirectionChanged(value);
+                    },
+                  ),
+                  const SizedBox(height: 20),
+                  _howItWorksFlow(
+                    allowedColor,
+                    blockedColor,
+                    progress,
+                  ),
+                  const SizedBox(height: 20),
+                  Text(
+                    'Use two icons and one animated mask. It is much '
+                    'easier and faster than building and maintaining '
+                    'custom vector paths by hand.',
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                  ),
+                  const SizedBox(height: 20),
                   Align(
                     alignment: Alignment.centerRight,
                     child: TextButton(
@@ -2632,11 +2678,11 @@ class _HowItWorksDialogState extends State<HowItWorksDialog>
                     ),
                   ),
                 ],
-              ),
-            ),
+              );
+            },
           ),
-        );
-      },
+        ),
+      ),
     );
   }
 
@@ -2667,9 +2713,8 @@ class _HowItWorksDialogState extends State<HowItWorksDialog>
                     child: _howItWorksSingleLayer(
                       baseIconName: widget.pair.enabledIcon,
                       wipedIconName: widget.pair.enabledIcon,
-                      baseColor: allowedColor,
-                      wipedColor: allowedColor,
-                      entersOnReveal: false,
+                      baseTint: allowedColor,
+                      wipedTint: Colors.transparent,
                       direction: _direction,
                       progress: progress,
                     ),
@@ -2691,9 +2736,8 @@ class _HowItWorksDialogState extends State<HowItWorksDialog>
                     child: _howItWorksSingleLayer(
                       baseIconName: widget.pair.disabledIcon,
                       wipedIconName: widget.pair.disabledIcon,
-                      baseColor: blockedColor,
-                      wipedColor: blockedColor,
-                      entersOnReveal: true,
+                      baseTint: Colors.transparent,
+                      wipedTint: blockedColor,
                       direction: _direction,
                       progress: progress,
                     ),
@@ -2736,17 +2780,28 @@ class _HowItWorksDialogState extends State<HowItWorksDialog>
         ),
         const SizedBox(width: 8),
         Expanded(
-          child: _HowItWorksStep(
-            title: 'Result',
-            frameHeight: _flowFrameHeight,
-            child: _howItWorksSingleLayer(
-              baseIconName: widget.pair.enabledIcon,
-              wipedIconName: widget.pair.disabledIcon,
-              baseColor: allowedColor,
-              wipedColor: blockedColor,
-              entersOnReveal: false,
-              direction: _direction,
-              progress: progress,
+          child: Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Theme.of(context)
+                  .colorScheme
+                  .appSurfaceVariant
+                  .withValues(alpha: 0.3),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            alignment: Alignment.center,
+            child: _HowItWorksStep(
+              title: 'Result',
+              frameHeight: _flowFrameHeight,
+              child: _howItWorksSingleLayer(
+                baseIconName: widget.pair.enabledIcon,
+                wipedIconName: widget.pair.disabledIcon,
+                baseTint: allowedColor,
+                wipedTint: blockedColor,
+                direction: _direction,
+                progress: progress,
+                padding: EdgeInsets.zero,
+              ),
             ),
           ),
         ),
@@ -2757,20 +2812,20 @@ class _HowItWorksDialogState extends State<HowItWorksDialog>
   Widget _howItWorksSingleLayer({
     required MaterialSymbolName baseIconName,
     required MaterialSymbolName wipedIconName,
-    required Color baseColor,
-    required Color wipedColor,
-    required bool entersOnReveal,
+    required Color baseTint,
+    required Color wipedTint,
     required WipeDirection direction,
     required double progress,
+    EdgeInsetsGeometry padding = const EdgeInsets.all(2),
   }) {
     return Padding(
-      padding: const EdgeInsets.all(2),
+      padding: padding,
       child: DiagonalWipeIconAtProgress(
         progress: progress,
         baseIcon: materialSymbolIconBuilder(baseIconName),
         wipedIcon: materialSymbolIconBuilder(wipedIconName),
-        baseTint: entersOnReveal ? Colors.transparent : baseColor,
-        wipedTint: entersOnReveal ? wipedColor : Colors.transparent,
+        baseTint: baseTint,
+        wipedTint: wipedTint,
         size: _flowSquareSize,
         direction: direction,
       ),
@@ -2811,15 +2866,18 @@ class _HowItWorksDialogState extends State<HowItWorksDialog>
             ),
           ],
           if (clampedProgress >= 0.2 && clampedProgress <= 0.8)
-            CustomPaint(
-              painter: _HowItWorksBoundaryPainterWrapper(
-                size: const Size(_flowSquareSize, _flowSquareSize),
-                progress: clampedProgress,
-                direction: direction,
-                color: Theme.of(context)
-                    .colorScheme
-                    .tertiary
-                    .withValues(alpha: 0.8),
+            Positioned.fill(
+              child: IgnorePointer(
+                child: CustomPaint(
+                  painter: _HowItWorksBoundaryPainterWrapper(
+                    progress: clampedProgress,
+                    direction: direction,
+                    color: Theme.of(context)
+                        .colorScheme
+                        .tertiary
+                        .withValues(alpha: 0.8),
+                  ),
+                ),
               ),
             ),
         ],
@@ -2876,7 +2934,7 @@ class _HowItWorksDialogState extends State<HowItWorksDialog>
             direction: direction,
             onDirectionChange: onDirectionChange,
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 16),
           Text(
             _howItWorksDirectionLabels[direction] ?? 'Top-left to bottom-right',
             style: Theme.of(context).textTheme.labelMedium?.copyWith(
@@ -3008,8 +3066,8 @@ class _HowItWorksDirectionButtonState extends State<_HowItWorksDirectionButton>
   bool _pressed = false;
   late final AnimationController _scaleController = AnimationController(
     vsync: this,
-    lowerBound: 0.9,
-    upperBound: 1.15,
+    lowerBound: 0.92,
+    upperBound: 1.08,
     value: 1,
   );
 
@@ -3038,7 +3096,7 @@ class _HowItWorksDirectionButtonState extends State<_HowItWorksDirectionButton>
     _animateScaleWithSpring(
       _scaleController,
       target,
-      stiffness: 1500,
+      stiffness: 500,
       dampingRatio: 1,
     );
   }
@@ -3061,6 +3119,7 @@ class _HowItWorksDirectionButtonState extends State<_HowItWorksDirectionButton>
         onTapCancel: () => _setPressed(false),
         onTap: widget.onPressed,
         child: MouseRegion(
+          cursor: SystemMouseCursors.click,
           onEnter: (_) => _setHovered(true),
           onExit: (_) => _setHovered(false),
           child: AnimatedBuilder(
@@ -3105,16 +3164,18 @@ class _HowItWorksStep extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       mainAxisSize: MainAxisSize.min,
-      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         SizedBox(
           height: frameHeight,
+          width: double.infinity,
           child: Center(child: child),
         ),
         const SizedBox(height: 6),
         Text(
           title,
           style: Theme.of(context).textTheme.labelMedium,
+          textAlign: TextAlign.center,
           maxLines: 1,
         ),
       ],
@@ -3124,13 +3185,11 @@ class _HowItWorksStep extends StatelessWidget {
 
 class _HowItWorksBoundaryPainterWrapper extends CustomPainter {
   _HowItWorksBoundaryPainterWrapper({
-    required this.size,
     required this.progress,
     required this.direction,
     required this.color,
   });
 
-  final Size size;
   final double progress;
   final WipeDirection direction;
   final Color color;
@@ -3138,8 +3197,8 @@ class _HowItWorksBoundaryPainterWrapper extends CustomPainter {
   @override
   void paint(Canvas canvas, Size canvasSize) {
     final line = buildWipeBoundaryLine(
-      width: size.width,
-      height: size.height,
+      width: canvasSize.width,
+      height: canvasSize.height,
       progress: progress,
       direction: direction,
     );

@@ -1,28 +1,41 @@
+import 'package:flutter/foundation.dart';
+
 import 'src/material_symbol_name.dart';
 
+MaterialSymbolName _requiredSymbolName(String catalogName) {
+  try {
+    return MaterialSymbolName.of(catalogName);
+  } on ArgumentError {
+    throw ArgumentError.value(
+      catalogName,
+      'catalogName',
+      'Unknown Material symbol name in catalog',
+    );
+  }
+}
+
+@immutable
 class MaterialWipeIconPair {
   final String label;
   final MaterialSymbolName enabledIcon;
   final MaterialSymbolName disabledIcon;
   final MaterialSymbolName? enabledCodeIcon;
   final MaterialSymbolName? disabledCodeIcon;
-  final String? enabledCodeIconName;
-  final String? disabledCodeIconName;
 
   MaterialWipeIconPair({
     required this.label,
     required String enabledIconName,
     required String disabledIconName,
-    this.enabledCodeIconName,
-    this.disabledCodeIconName,
-  })  : enabledIcon = MaterialSymbolName(enabledIconName),
-        disabledIcon = MaterialSymbolName(disabledIconName),
+    String? enabledCodeIconName,
+    String? disabledCodeIconName,
+  })  : enabledIcon = _requiredSymbolName(enabledIconName),
+        disabledIcon = _requiredSymbolName(disabledIconName),
         enabledCodeIcon = enabledCodeIconName == null
             ? null
-            : MaterialSymbolName(enabledCodeIconName),
+            : _requiredSymbolName(enabledCodeIconName),
         disabledCodeIcon = disabledCodeIconName == null
             ? null
-            : MaterialSymbolName(disabledCodeIconName);
+            : _requiredSymbolName(disabledCodeIconName);
 
   MaterialWipeIconPair.symbols({
     required String label,
@@ -41,8 +54,13 @@ class MaterialWipeIconPair {
   String get enabledIconName => enabledIcon.catalogName;
 
   String get disabledIconName => disabledIcon.catalogName;
+
+  String? get enabledCodeIconName => enabledCodeIcon?.catalogName;
+
+  String? get disabledCodeIconName => disabledCodeIcon?.catalogName;
 }
 
+@immutable
 class MaterialWipeIconSection {
   final String title;
   final String subtitle;
@@ -90,11 +108,6 @@ final List<MaterialWipeIconPair> coreMaterialWipeIconCatalog = [
     label: "Android Cell 5 Bar",
     enabledIconName: "AndroidCell5Bar",
     disabledIconName: "AndroidCell5BarOff",
-  ),
-  MaterialWipeIconPair(
-    label: "Android Wifi 3 Bar",
-    enabledIconName: "AndroidWifi3Bar",
-    disabledIconName: "AndroidWifi3BarOff",
   ),
   MaterialWipeIconPair(
     label: "Android Wifi 4 Bar",
@@ -461,11 +474,6 @@ final List<MaterialWipeIconPair> coreMaterialWipeIconCatalog = [
     label: "Media Output",
     enabledIconName: "MediaOutput",
     disabledIconName: "MediaOutputOff",
-  ),
-  MaterialWipeIconPair(
-    label: "Mic",
-    enabledIconName: "Mic",
-    disabledIconName: "MicOff",
   ),
   MaterialWipeIconPair(
     label: "Mic External",
@@ -894,6 +902,11 @@ final List<MaterialWipeIconPair> coreMaterialWipeIconCatalog = [
 
 final List<MaterialWipeIconPair> knownProblemsMaterialWipeIconCatalog = [
   MaterialWipeIconPair(
+    label: "Android Wifi 3 Bar",
+    enabledIconName: "AndroidWifi3Bar",
+    disabledIconName: "AndroidWifi3BarOff",
+  ),
+  MaterialWipeIconPair(
     label: "Approval Delegation",
     enabledIconName: "ApprovalDelegation",
     disabledIconName: "ApprovalDelegationOff",
@@ -939,6 +952,11 @@ final List<MaterialWipeIconPair> knownProblemsMaterialWipeIconCatalog = [
     disabledIconName: "MediaBluetoothOff",
     enabledCodeIconName: "MediaBluetoothOn",
     disabledCodeIconName: "MediaBluetoothOff",
+  ),
+  MaterialWipeIconPair(
+    label: "Mic",
+    enabledIconName: "Mic",
+    disabledIconName: "MicOff",
   ),
   MaterialWipeIconPair(
     label: "Mode Heat",

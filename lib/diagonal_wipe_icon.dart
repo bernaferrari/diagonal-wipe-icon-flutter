@@ -3,8 +3,13 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
 
-import 'curve_safety.dart';
+const double _composeStiffnessMediumLow = 400;
+const double _composeStiffnessLow = 200;
 
+/// Defines how a [DiagonalWipeIcon] animates between its two icon states.
+///
+/// Use this object to bundle timing, easing, spring behavior, seam overlap,
+/// and wipe direction into a reusable motion preset.
 class DiagonalWipeMotion {
   final Duration wipeInDuration;
   final Duration wipeOutDuration;
@@ -18,20 +23,22 @@ class DiagonalWipeMotion {
   final double seamOverlapPx;
   final WipeDirection direction;
 
+  /// Creates a fully custom motion definition.
   const DiagonalWipeMotion({
     this.wipeInDuration = const Duration(milliseconds: 530),
     this.wipeOutDuration = const Duration(milliseconds: 800),
     this.wipeInCurve = const Cubic(0.22, 1, 0.36, 1),
     this.wipeOutCurve = const Cubic(0.4, 0, 0.2, 1),
     this.useSpring = false,
-    this.wipeInStiffness = 200,
-    this.wipeOutStiffness = 100,
+    this.wipeInStiffness = _composeStiffnessMediumLow,
+    this.wipeOutStiffness = _composeStiffnessLow,
     this.wipeInDampingRatio = 1.0,
     this.wipeOutDampingRatio = 1.0,
     this.seamOverlapPx = 0.8,
     this.direction = WipeDirection.topLeftToBottomRight,
-  });
+  }) : assert(seamOverlapPx >= 0);
 
+  /// A quick non-spring preset tuned for responsive tap interactions.
   const DiagonalWipeMotion.snappy({
     this.direction = WipeDirection.topLeftToBottomRight,
     this.seamOverlapPx = 0.8,
@@ -40,11 +47,13 @@ class DiagonalWipeMotion {
         wipeInCurve = Curves.fastOutSlowIn,
         wipeOutCurve = Curves.linearToEaseOut,
         useSpring = false,
-        wipeInStiffness = 200,
-        wipeOutStiffness = 100,
+        wipeInStiffness = _composeStiffnessMediumLow,
+        wipeOutStiffness = _composeStiffnessLow,
         wipeInDampingRatio = 1,
-        wipeOutDampingRatio = 1;
+        wipeOutDampingRatio = 1,
+        assert(seamOverlapPx >= 0);
 
+  /// A slower eased preset intended for softer, calmer transitions.
   const DiagonalWipeMotion.gentle({
     this.direction = WipeDirection.topLeftToBottomRight,
     this.seamOverlapPx = 0.8,
@@ -53,11 +62,13 @@ class DiagonalWipeMotion {
         wipeInCurve = const Cubic(0.22, 1, 0.36, 1),
         wipeOutCurve = const Cubic(0.4, 0, 0.2, 1),
         useSpring = false,
-        wipeInStiffness = 200,
-        wipeOutStiffness = 100,
+        wipeInStiffness = _composeStiffnessMediumLow,
+        wipeOutStiffness = _composeStiffnessLow,
         wipeInDampingRatio = 1,
-        wipeOutDampingRatio = 1;
+        wipeOutDampingRatio = 1,
+        assert(seamOverlapPx >= 0);
 
+  /// A spring-driven preset with the same general pacing as [gentle].
   const DiagonalWipeMotion.expressive({
     this.direction = WipeDirection.topLeftToBottomRight,
     this.seamOverlapPx = 0.8,
@@ -66,31 +77,37 @@ class DiagonalWipeMotion {
         wipeInCurve = const Cubic(0.22, 1, 0.36, 1),
         wipeOutCurve = const Cubic(0.4, 0, 0.2, 1),
         useSpring = true,
-        wipeInStiffness = 50,
-        wipeOutStiffness = 200,
+        wipeInStiffness = _composeStiffnessMediumLow,
+        wipeOutStiffness = _composeStiffnessLow,
         wipeInDampingRatio = 1,
-        wipeOutDampingRatio = 1;
+        wipeOutDampingRatio = 1,
+        assert(seamOverlapPx >= 0);
 
+  /// A fully spring-driven preset with configurable stiffness and damping.
   const DiagonalWipeMotion.spring({
     this.direction = WipeDirection.topLeftToBottomRight,
     this.seamOverlapPx = 0.8,
-    this.wipeInStiffness = 200,
-    this.wipeOutStiffness = 200,
+    this.wipeInStiffness = _composeStiffnessMediumLow,
+    this.wipeOutStiffness = _composeStiffnessLow,
     this.wipeInDampingRatio = 1,
     this.wipeOutDampingRatio = 1,
   })  : wipeInDuration = const Duration(milliseconds: 530),
         wipeOutDuration = const Duration(milliseconds: 800),
         wipeInCurve = Curves.linear,
         wipeOutCurve = Curves.linear,
-        useSpring = true;
+        useSpring = true,
+        assert(seamOverlapPx >= 0);
 
   static const WipeDirection defaultDirection =
       WipeDirection.topLeftToBottomRight;
   static const double defaultSeamOverlapPx = 0.8;
 }
 
+/// Builds an icon widget using the size and resolved color from the wipe icon.
 typedef SizedIconBuilder = Widget Function(double size, Color color);
 
+/// Animates between two icon widgets by revealing the destination icon with a
+/// diagonal, horizontal, or vertical wipe.
 class DiagonalWipeIcon extends StatefulWidget {
   final bool isWiped;
   final SizedIconBuilder baseIcon;
@@ -111,6 +128,7 @@ class DiagonalWipeIcon extends StatefulWidget {
   final double wipeOutDampingRatio;
   final double seamOverlapPx;
 
+  /// Creates a wipe icon using a reusable [DiagonalWipeMotion] preset.
   DiagonalWipeIcon.fromMotion({
     super.key,
     required this.isWiped,
@@ -133,6 +151,7 @@ class DiagonalWipeIcon extends StatefulWidget {
         wipeOutDampingRatio = motion.wipeOutDampingRatio,
         seamOverlapPx = motion.seamOverlapPx;
 
+  /// Creates a wipe icon with explicit animation parameters.
   const DiagonalWipeIcon({
     super.key,
     required this.isWiped,
@@ -148,12 +167,12 @@ class DiagonalWipeIcon extends StatefulWidget {
     this.wipeInCurve = const Cubic(0.22, 1, 0.36, 1),
     this.wipeOutCurve = const Cubic(0.4, 0, 0.2, 1),
     this.useSpring = false,
-    this.wipeInStiffness = 200,
-    this.wipeOutStiffness = 100,
+    this.wipeInStiffness = _composeStiffnessMediumLow,
+    this.wipeOutStiffness = _composeStiffnessLow,
     this.wipeInDampingRatio = 1.0,
     this.wipeOutDampingRatio = 1.0,
     this.seamOverlapPx = 0.8,
-  });
+  }) : assert(seamOverlapPx >= 0);
 
   @override
   State<DiagonalWipeIcon> createState() => _DiagonalWipeIconState();
@@ -261,21 +280,12 @@ class _DiagonalWipeIconState extends State<DiagonalWipeIcon>
     final Duration duration =
         isWipingIn ? widget.wipeInDuration : widget.wipeOutDuration;
     final Curve curve = isWipingIn ? widget.wipeInCurve : widget.wipeOutCurve;
-    _animation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    )
-        .chain(
-          CurveTween(
-            curve: withSafeCurveEndpoints(curve),
-          ),
-        )
-        .animate(_controller);
+    _animation = _controller;
 
     _controller.animateTo(
       targetValue,
       duration: duration,
-      curve: Curves.linear,
+      curve: curve,
     );
   }
 
@@ -289,10 +299,11 @@ class _DiagonalWipeIconState extends State<DiagonalWipeIcon>
 
   @override
   Widget build(BuildContext context) {
-    final Color baseColor =
-        widget.baseTint ?? Theme.of(context).colorScheme.onSurface;
-    final Color wipedColor =
-        widget.wipedTint ?? Theme.of(context).colorScheme.onSurface;
+    final theme = Theme.of(context);
+    final iconThemeColor = IconTheme.of(context).color;
+    final fallbackTint = iconThemeColor ?? theme.colorScheme.onSurface;
+    final Color baseColor = widget.baseTint ?? fallbackTint;
+    final Color wipedColor = widget.wipedTint ?? fallbackTint;
 
     final Widget result = AnimatedBuilder(
       animation: _animation,
@@ -360,6 +371,8 @@ class _DiagonalWipeIconState extends State<DiagonalWipeIcon>
   }
 }
 
+/// Renders the wipe effect at an explicit progress value between `0.0` and
+/// `1.0`, without owning an internal animation controller.
 class DiagonalWipeIconAtProgress extends StatelessWidget {
   const DiagonalWipeIconAtProgress({
     super.key,
@@ -394,10 +407,11 @@ class DiagonalWipeIconAtProgress extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Color resolvedBaseTint =
-        baseTint ?? Theme.of(context).colorScheme.onSurface;
-    final Color resolvedWipedTint =
-        wipedTint ?? Theme.of(context).colorScheme.onSurface;
+    final theme = Theme.of(context);
+    final iconThemeColor = IconTheme.of(context).color;
+    final fallbackTint = iconThemeColor ?? theme.colorScheme.onSurface;
+    final Color resolvedBaseTint = baseTint ?? fallbackTint;
+    final Color resolvedWipedTint = wipedTint ?? fallbackTint;
     final double clampedProgress = progress.clamp(0.0, 1.0);
 
     final Widget staticResult = _buildIcon(baseIcon, resolvedBaseTint);
@@ -464,6 +478,7 @@ class DiagonalWipeIconAtProgress extends StatelessWidget {
   }
 }
 
+/// The direction in which the wipe boundary travels across the icon bounds.
 enum WipeDirection {
   topLeftToBottomRight,
   bottomRightToTopLeft,
@@ -510,6 +525,7 @@ Offset _wipeAxis(WipeDirection direction) {
   }
 }
 
+/// Returns the distance the wipe boundary must travel to fully cross a box.
 double wipeTravelDistance(
   double width,
   double height,
@@ -624,6 +640,7 @@ List<Offset> _clipRectangleWithHalfPlane({
   return outPoints;
 }
 
+/// Builds the clipping path that reveals the destination icon for [progress].
 Path buildWipeRevealPath({
   required double width,
   required double height,
@@ -660,6 +677,9 @@ Path buildWipeRevealPath({
   return path;
 }
 
+/// Returns the visible wipe boundary line for debugging or custom painting.
+///
+/// Returns `null` when the wipe is fully hidden or fully revealed.
 ({Offset start, Offset end})? buildWipeBoundaryLine({
   required double width,
   required double height,

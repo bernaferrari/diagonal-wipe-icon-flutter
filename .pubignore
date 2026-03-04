@@ -1,0 +1,17 @@
+# Tooling and local artifacts
+.dart_tool/
+.idea/
+build/
+coverage/
+*.iml
+.metadata
+.flutter-plugins-dependencies
+pubspec.lock
+
+# Legacy app-only files moved to example/
+/web/
+lib/main.dart
+lib/demo_catalog.dart
+lib/curve_safety.dart
+lib/material_symbol_assets.dart
+lib/src/
