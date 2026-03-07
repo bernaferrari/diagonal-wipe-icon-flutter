@@ -1213,15 +1213,19 @@ class _HeroIconButtonState extends State<HeroIconButton>
                   : null,
             ),
             alignment: Alignment.center,
-            child: DiagonalWipeIcon.fromMotion(
+            child: AnimatedDiagonalWipeIcon(
               isWiped: widget.isWiped,
-              baseIcon: materialSymbolIconBuilder(widget.iconPair.enabledIcon),
-              wipedIcon:
-                  materialSymbolIconBuilder(widget.iconPair.disabledIcon),
+              baseIcon: fallbackIconData(widget.iconPair.enabledIcon),
+              wipedIcon: fallbackIconData(widget.iconPair.disabledIcon),
               baseTint: colors.primary,
               wipedTint: colors.secondary,
               size: widget.size * 0.49,
-              motion: const DiagonalWipeMotion.gentle(),
+              animationStyle: const AnimationStyle(
+                duration: Duration(milliseconds: 530),
+                reverseDuration: Duration(milliseconds: 800),
+                curve: Cubic(0.22, 1, 0.36, 1),
+                reverseCurve: Cubic(0.4, 0, 0.2, 1),
+              ),
             ),
           ),
         ),
@@ -1517,12 +1521,15 @@ class _DiagonalWipeIconGridItemState extends State<DiagonalWipeIconGridItem>
   @override
   Widget build(BuildContext context) {
     final isWiped = widget.isLooping ? widget.allIconsWiped : _hovered;
-    final stiffness = widget.animationMultiplier > 1 ? 50.0 : 200.0;
-    final motion = DiagonalWipeMotion.spring(
-      wipeInStiffness: stiffness,
-      wipeOutStiffness: stiffness,
-      wipeInDampingRatio: 1,
-      wipeOutDampingRatio: 1,
+    final animationStyle = AnimationStyle(
+      duration: Duration(
+        milliseconds: (530 * widget.animationMultiplier).round(),
+      ),
+      reverseDuration: Duration(
+        milliseconds: (800 * widget.animationMultiplier).round(),
+      ),
+      curve: const Cubic(0.22, 1, 0.36, 1),
+      reverseCurve: const Cubic(0.4, 0, 0.2, 1),
     );
     final Color borderColor = _pressed
         ? widget.accentColor
@@ -1588,12 +1595,12 @@ class _DiagonalWipeIconGridItemState extends State<DiagonalWipeIconGridItem>
                             Center(
                               child: Padding(
                                 padding: const EdgeInsets.all(18),
-                                child: DiagonalWipeIcon.fromMotion(
+                                child: AnimatedDiagonalWipeIcon(
                                   isWiped: isWiped,
-                                  baseIcon: materialSymbolIconBuilder(
+                                  baseIcon: fallbackIconData(
                                     widget.iconPair.enabledIcon,
                                   ),
-                                  wipedIcon: materialSymbolIconBuilder(
+                                  wipedIcon: fallbackIconData(
                                     widget.iconPair.disabledIcon,
                                   ),
                                   baseTint:
@@ -1601,7 +1608,7 @@ class _DiagonalWipeIconGridItemState extends State<DiagonalWipeIconGridItem>
                                   wipedTint:
                                       Theme.of(context).colorScheme.secondary,
                                   size: 44,
-                                  motion: motion,
+                                  animationStyle: animationStyle,
                                 ),
                               ),
                             ),
@@ -2267,22 +2274,22 @@ class _IconPreviewDialogState extends State<IconPreviewDialog> {
                     .withValues(alpha: 0.5),
               ),
               alignment: Alignment.center,
-              child: DiagonalWipeIcon.fromMotion(
+              child: AnimatedDiagonalWipeIcon(
                 isWiped: _previewIsWiped,
-                baseIcon: materialSymbolIconBuilder(
-                  widget.iconPair.enabledIcon,
-                ),
-                wipedIcon: materialSymbolIconBuilder(
-                  widget.iconPair.disabledIcon,
-                ),
+                baseIcon: fallbackIconData(widget.iconPair.enabledIcon),
+                wipedIcon: fallbackIconData(widget.iconPair.disabledIcon),
                 baseTint: Theme.of(context).colorScheme.primary,
                 wipedTint: Theme.of(context).colorScheme.secondary,
                 size: 120,
-                motion: DiagonalWipeMotion.spring(
-                  wipeInStiffness: _previewSlowMode ? 50 : 200,
-                  wipeOutStiffness: _previewSlowMode ? 50 : 200,
-                  wipeInDampingRatio: 1,
-                  wipeOutDampingRatio: 1,
+                animationStyle: AnimationStyle(
+                  duration: Duration(
+                    milliseconds: _previewSlowMode ? 1060 : 530,
+                  ),
+                  reverseDuration: Duration(
+                    milliseconds: _previewSlowMode ? 1600 : 800,
+                  ),
+                  curve: const Cubic(0.22, 1, 0.36, 1),
+                  reverseCurve: const Cubic(0.4, 0, 0.2, 1),
                 ),
               ),
             ),
@@ -2820,12 +2827,10 @@ class _HowItWorksDialogState extends State<HowItWorksDialog>
   }) {
     return Padding(
       padding: padding,
-      child: DiagonalWipeIconAtProgress(
-        progress: progress,
-        baseIcon: materialSymbolIconBuilder(baseIconName),
-        wipedIcon: materialSymbolIconBuilder(wipedIconName),
-        baseTint: baseTint,
-        wipedTint: wipedTint,
+      child: DiagonalWipeTransition(
+        progress: AlwaysStoppedAnimation(progress),
+        baseChild: Icon(fallbackIconData(baseIconName)),
+        wipedChild: Icon(fallbackIconData(wipedIconName)),
         size: _flowSquareSize,
         direction: direction,
       ),

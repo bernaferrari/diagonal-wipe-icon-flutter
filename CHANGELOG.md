@@ -1,6 +1,8 @@
 ## 0.1.0
 
 - Initial public release.
-- Adds `DiagonalWipeIcon` widget and `DiagonalWipeMotion` presets.
+- Adds `AnimatedDiagonalWipeIcon` for implicit icon-state animation.
+- Adds `DiagonalWipeTransition` for explicit controller-driven animation.
+- Uses Flutter `AnimationStyle` for implicit timing and easing customization.
 - Supports diagonal and axis-aligned wipe directions.
 - Includes an `example/` app demonstrating usage patterns.

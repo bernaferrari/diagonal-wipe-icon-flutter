@@ -14,12 +14,10 @@ void main() {
   testWidgets('renders with semantics label', (WidgetTester tester) async {
     await tester.pumpWidget(
       buildHost(
-        DiagonalWipeIcon.fromMotion(
+        const AnimatedDiagonalWipeIcon(
           isWiped: false,
-          baseIcon: (size, color) =>
-              Icon(Icons.visibility, size: size, color: color),
-          wipedIcon: (size, color) =>
-              Icon(Icons.visibility_off, size: size, color: color),
+          baseIcon: Icons.visibility,
+          wipedIcon: Icons.visibility_off,
           semanticsLabel: 'Visibility',
         ),
       ),
@@ -38,12 +36,10 @@ void main() {
             return Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                DiagonalWipeIcon.fromMotion(
+                AnimatedDiagonalWipeIcon(
                   isWiped: isWiped,
-                  baseIcon: (size, color) =>
-                      Icon(Icons.volume_up, size: size, color: color),
-                  wipedIcon: (size, color) =>
-                      Icon(Icons.volume_off, size: size, color: color),
+                  baseIcon: Icons.volume_up,
+                  wipedIcon: Icons.volume_off,
                   semanticsLabel: 'Mute',
                 ),
                 TextButton(
@@ -64,22 +60,151 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('supports custom direction motion', (WidgetTester tester) async {
+  testWidgets('supports custom direction and animation style', (
+    WidgetTester tester,
+  ) async {
     await tester.pumpWidget(
       buildHost(
-        DiagonalWipeIcon.fromMotion(
+        const AnimatedDiagonalWipeIcon(
           isWiped: true,
-          baseIcon: (size, color) => Icon(Icons.wifi, size: size, color: color),
-          wipedIcon: (size, color) =>
-              Icon(Icons.wifi_off, size: size, color: color),
-          motion: const DiagonalWipeMotion.gentle(
-            direction: WipeDirection.leftToRight,
+          baseIcon: Icons.wifi,
+          wipedIcon: Icons.wifi_off,
+          direction: WipeDirection.leftToRight,
+          animationStyle: AnimationStyle(
+            duration: Duration(milliseconds: 220),
+            reverseDuration: Duration(milliseconds: 300),
+            curve: Curves.fastOutSlowIn,
+            reverseCurve: Curves.linearToEaseOut,
           ),
         ),
       ),
     );
 
-    expect(find.byType(DiagonalWipeIcon), findsOneWidget);
+    expect(find.byType(AnimatedDiagonalWipeIcon), findsOneWidget);
     expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('raw constructor exposes resolved IconTheme to descendants', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(
+      buildHost(
+        AnimatedDiagonalWipeIcon.raw(
+          isWiped: false,
+          baseChild: Builder(
+            builder: (context) {
+              final IconThemeData iconTheme = IconTheme.of(context);
+              return Text(
+                '${iconTheme.color?.toARGB32()}:${iconTheme.size?.toStringAsFixed(0)}',
+              );
+            },
+          ),
+          wipedChild: const Icon(Icons.close),
+          baseTint: Colors.green,
+          wipedTint: Colors.red,
+          size: 32,
+        ),
+      ),
+    );
+
+    expect(find.text('${Colors.green.toARGB32()}:32'), findsOneWidget);
+    expect(find.byType(ClipRect), findsOneWidget);
+  });
+
+  testWidgets('raw constructor preserves explicit child styling', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(
+      buildHost(
+        const AnimatedDiagonalWipeIcon.raw(
+          isWiped: false,
+          baseChild: Icon(Icons.check, color: Colors.blue, size: 40),
+          wipedChild: Icon(Icons.close),
+          baseTint: Colors.green,
+          size: 32,
+        ),
+      ),
+    );
+
+    final Icon icon = tester.widget<Icon>(find.byIcon(Icons.check));
+    expect(icon.color, Colors.blue);
+    expect(icon.size, 40);
+  });
+
+  testWidgets('raw constructor supports custom animation style', (
+    WidgetTester tester,
+  ) async {
+    bool isWiped = false;
+
+    await tester.pumpWidget(
+      buildHost(
+        StatefulBuilder(
+          builder: (context, setState) {
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                AnimatedDiagonalWipeIcon.raw(
+                  isWiped: isWiped,
+                  baseChild: const Icon(Icons.play_arrow),
+                  wipedChild: const Icon(Icons.pause),
+                  animationStyle: const AnimationStyle(
+                    duration: Duration(milliseconds: 220),
+                    reverseDuration: Duration(milliseconds: 300),
+                    curve: Curves.fastOutSlowIn,
+                    reverseCurve: Curves.linearToEaseOut,
+                  ),
+                ),
+                TextButton(
+                  onPressed: () => setState(() => isWiped = !isWiped),
+                  child: const Text('toggle raw'),
+                ),
+              ],
+            );
+          },
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('toggle raw'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('transition constructor renders without exceptions', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(
+      buildHost(
+        const DiagonalWipeTransition(
+          progress: AlwaysStoppedAnimation(0.5),
+          baseChild: Icon(Icons.lock),
+          wipedChild: Icon(Icons.lock_open),
+        ),
+      ),
+    );
+
+    expect(find.byType(DiagonalWipeTransition), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('transition constructor preserves child styling', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(
+      buildHost(
+        const DiagonalWipeTransition(
+          progress: AlwaysStoppedAnimation(0.5),
+          baseChild: Icon(Icons.check, color: Colors.purple, size: 28),
+          wipedChild: Icon(Icons.close, color: Colors.orange, size: 28),
+          size: 28,
+        ),
+      ),
+    );
+
+    final Icon icon = tester.widget<Icon>(find.byIcon(Icons.check));
+    expect(icon.color, Colors.purple);
+    expect(icon.size, 28);
   });
 }

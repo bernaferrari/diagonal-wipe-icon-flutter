@@ -49,9 +49,6 @@ String buildDiagonalWipeUsageSnippet(MaterialWipeIconPair pair) {
   final enabledIcon = materialSymbolIconCode(enabledCode);
   final disabledIcon = materialSymbolIconCode(disabledCode);
 
-  final enabledSnippet = "Icon($enabledIcon, size: 120, color: color)";
-  final disabledSnippet = "Icon($disabledIcon, size: 120, color: color)";
-
   return '''
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
@@ -59,11 +56,11 @@ import 'package:diagonal_wipe_icon/diagonal_wipe_icon.dart';
 
 bool isWiped = false;
 
-DiagonalWipeIcon(
+AnimatedDiagonalWipeIcon(
   isWiped: isWiped,
   size: 120,
-  baseIcon: (size, color) => $enabledSnippet,
-  wipedIcon: (size, color) => $disabledSnippet,
+  baseIcon: $enabledIcon,
+  wipedIcon: $disabledIcon,
   baseTint: Theme.of(context).colorScheme.primary,
   wipedTint: Theme.of(context).colorScheme.secondary,
 );
