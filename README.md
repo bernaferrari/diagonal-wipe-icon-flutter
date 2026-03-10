@@ -1,7 +1,7 @@
 <div align="center">
 
 <a href="https://bernaferrari.github.io/diagonal-wipe-icon-flutter/">
-  <img src="assets/animated-icons.webp" width="680" alt="Diagonal wipe icon animation in Flutter">
+  <img src="https://raw.githubusercontent.com/bernaferrari/diagonal-wipe-icon-flutter/main/assets/animated-icons.webp" width="680" alt="Diagonal wipe icon animation in Flutter">
 </a>
 
 # Diagonal Wipe Icon
@@ -30,7 +30,7 @@ The core implementation also lives in a single Dart file, so you can vendor it d
 <div align="center">
 
 <a href="https://bernaferrari.github.io/diagonal-wipe-icon-flutter/">
-  <img src="assets/preview.png" width="680" alt="Diagonal wipe icon static preview in Flutter">
+  <img src="https://raw.githubusercontent.com/bernaferrari/diagonal-wipe-icon-flutter/main/assets/preview.png" width="680" alt="Diagonal wipe icon static preview in Flutter">
 </a>
 
 </div>
@@ -210,11 +210,11 @@ Available `WipeDirection` values:
 <div align="center">
 
 <a href="https://bernaferrari.github.io/diagonal-wipe-icon-flutter/">
-  <img src="assets/how-it-works-mini.webp" width="680" alt="Diagonal wipe icon animation showing how the reveal mask moves">
+  <img src="https://raw.githubusercontent.com/bernaferrari/diagonal-wipe-icon-flutter/main/assets/how-it-works-mini.webp" width="680" alt="Diagonal wipe icon animation showing how the reveal mask moves">
 </a>
 
 <a href="https://bernaferrari.github.io/diagonal-wipe-icon-flutter/">
-  <img src="assets/how-it-works.png" width="680" alt="Diagram showing how one icon is clipped away while the other is revealed">
+  <img src="https://raw.githubusercontent.com/bernaferrari/diagonal-wipe-icon-flutter/main/assets/how-it-works.png" width="680" alt="Diagram showing how one icon is clipped away while the other is revealed">
 </a>
 
 </div>

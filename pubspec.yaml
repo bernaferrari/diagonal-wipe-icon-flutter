@@ -1,9 +1,9 @@
 name: diagonal_wipe_icon
 description: Polished wipe-style icon transitions for Flutter with diagonal, horizontal, and vertical directions.
 version: 0.1.0
-homepage: https://github.com/bernaferrari/diagonal-wipe-icon
-repository: https://github.com/bernaferrari/diagonal-wipe-icon
-issue_tracker: https://github.com/bernaferrari/diagonal-wipe-icon/issues
+homepage: https://github.com/bernaferrari/diagonal-wipe-icon-flutter
+repository: https://github.com/bernaferrari/diagonal-wipe-icon-flutter
+issue_tracker: https://github.com/bernaferrari/diagonal-wipe-icon-flutter/issues
 platforms:
   android:
   ios:
