@@ -13,7 +13,6 @@ dependencies:
   diagonal_wipe_icon:
     path: ../
   material_symbols_icons: ^4.2906.0
-  cupertino_icons: ^1.0.8
   url_launcher: ^6.3.0
 
 dev_dependencies:
