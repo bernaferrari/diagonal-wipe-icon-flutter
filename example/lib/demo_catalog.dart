@@ -810,11 +810,11 @@ final List<MaterialWipeIconPair> coreMaterialWipeIconCatalog = [
     enabledIconName: "SyncSavedLocally",
     disabledIconName: "SyncSavedLocallyOff",
   ),
-  MaterialWipeIconPair(
-    label: "Text Ad",
-    enabledIconName: "TextAd",
-    disabledIconName: "TextAdOff",
-  ),
+  // MaterialWipeIconPair(
+  //   label: "Text Ad",
+  //   enabledIconName: "TextAd",
+  //   disabledIconName: "TextAdOff",
+  // ),
   MaterialWipeIconPair(
     label: "Timer",
     enabledIconName: "Timer",
