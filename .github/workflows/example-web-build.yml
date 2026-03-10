@@ -1,0 +1,34 @@
+name: Example Web Build
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  build-example-web:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: example
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Enable Flutter web
+        run: flutter config --enable-web
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build example for web
+        run: flutter build web --wasm --release --base-href /diagonal-wipe-icon-flutter/
