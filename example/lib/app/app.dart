@@ -208,7 +208,7 @@ class _DiagonalWipeIconFlutterAppState extends State<DiagonalWipeIconFlutterApp>
               onToggleDark: () => setState(() => _isDark = !_isDark),
               onOpenX: () => _openUrl('https://x.com/bernaferrari'),
               onOpenGitHub: () => _openUrl(
-                'https://github.com/bernaferrari/diagonal-wipe-icon',
+                'https://github.com/bernaferrari/diagonal-wipe-icon-flutter',
               ),
             ),
             body: Stack(
