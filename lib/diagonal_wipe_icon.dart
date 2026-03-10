@@ -7,8 +7,8 @@ const double _defaultSeamOverlapPx = 0.8;
 const AnimationStyle _defaultAnimationStyle = AnimationStyle(
   duration: Duration(milliseconds: 530),
   reverseDuration: Duration(milliseconds: 800),
-  curve: Cubic(0.22, 1, 0.36, 1),
-  reverseCurve: Cubic(0.4, 0, 0.2, 1),
+  curve: Curves.ease,
+  reverseCurve: Curves.ease,
 );
 
 /// Animates between two icon widgets by revealing the destination icon with a

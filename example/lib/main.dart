@@ -102,7 +102,6 @@ class _DiagonalWipeIconFlutterAppState extends State<DiagonalWipeIconFlutterApp>
   final GlobalKey<NavigatorState> _rootNavigatorKey =
       GlobalKey<NavigatorState>();
 
-  bool _showIntro = false;
   bool _isLooping = false;
   bool _isLoopWiped = false;
   bool _isDark =
@@ -116,7 +115,6 @@ class _DiagonalWipeIconFlutterAppState extends State<DiagonalWipeIconFlutterApp>
   double _scrollProgress = 0;
   int _loopToken = 0;
   final ScrollController _catalogScrollController = ScrollController();
-  async.Timer? _introDelay;
   async.Timer? _toolbarDelay;
   late final AnimationController _toolbarIntroController = AnimationController(
     vsync: this,
@@ -126,22 +124,17 @@ class _DiagonalWipeIconFlutterAppState extends State<DiagonalWipeIconFlutterApp>
   @override
   void initState() {
     super.initState();
-    _introDelay = async.Timer(const Duration(milliseconds: 150), () {
+    _toolbarDelay = async.Timer(const Duration(milliseconds: 600), () {
       if (!mounted) return;
-      setState(() => _showIntro = true);
-      _toolbarDelay = async.Timer(const Duration(milliseconds: 600), () {
-        if (!mounted) return;
-        if (_toolbarIntroController.status == AnimationStatus.dismissed) {
-          _toolbarIntroController.forward();
-        }
-      });
+      if (_toolbarIntroController.status == AnimationStatus.dismissed) {
+        _toolbarIntroController.forward();
+      }
     });
   }
 
   @override
   void dispose() {
     _loopToken++;
-    _introDelay?.cancel();
     _toolbarDelay?.cancel();
     _toolbarIntroController.dispose();
     _catalogScrollController.dispose();
@@ -303,7 +296,6 @@ class _DiagonalWipeIconFlutterAppState extends State<DiagonalWipeIconFlutterApp>
               fit: StackFit.expand,
               children: [
                 _ScaffoldContent(
-                  introVisible: _showIntro,
                   onHeroIconTap: (pair) =>
                       setState(() => _heroSelectedIcon = pair),
                   animationMultiplier: _globalAnimationMultiplier,
@@ -368,7 +360,6 @@ class _DiagonalWipeIconFlutterAppState extends State<DiagonalWipeIconFlutterApp>
 
 class _ScaffoldContent extends StatefulWidget {
   const _ScaffoldContent({
-    required this.introVisible,
     required this.onHeroIconTap,
     required this.animationMultiplier,
     required this.allIconsWiped,
@@ -383,7 +374,6 @@ class _ScaffoldContent extends StatefulWidget {
     required this.onOpenHowItWorks,
   });
 
-  final bool introVisible;
   final ValueChanged<MaterialWipeIconPair> onHeroIconTap;
   final double animationMultiplier;
   final bool allIconsWiped;
@@ -401,12 +391,7 @@ class _ScaffoldContent extends StatefulWidget {
   State<_ScaffoldContent> createState() => _ScaffoldContentState();
 }
 
-class _ScaffoldContentState extends State<_ScaffoldContent>
-    with TickerProviderStateMixin {
-  late final AnimationController _introController = AnimationController(
-    vsync: this,
-    duration: const Duration(milliseconds: 1000),
-  );
+class _ScaffoldContentState extends State<_ScaffoldContent> {
   double _lastScrollProgress = 0;
   double? _lastScrollOffset;
 
@@ -414,7 +399,6 @@ class _ScaffoldContentState extends State<_ScaffoldContent>
   void initState() {
     super.initState();
     _lastScrollProgress = widget.scrollTitleAlpha;
-    _introController.value = widget.introVisible ? 1 : 0;
   }
 
   @override
@@ -423,36 +407,10 @@ class _ScaffoldContentState extends State<_ScaffoldContent>
     if (oldWidget.scrollTitleAlpha != widget.scrollTitleAlpha) {
       _lastScrollProgress = widget.scrollTitleAlpha;
     }
-    if (widget.introVisible && !oldWidget.introVisible) {
-      _introController.forward();
-    } else if (!widget.introVisible && oldWidget.introVisible) {
-      _introController.reverse();
-    }
-  }
-
-  @override
-  void dispose() {
-    _introController.dispose();
-    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final heroIntro = _introController.drive(
-      Tween<double>(
-        begin: 0.0,
-        end: 1.0,
-      ).chain(
-        CurveTween(
-          curve: Curves.easeOutCubic,
-        ),
-      ),
-    );
-    final heroSlide = Tween<Offset>(
-      begin: const Offset(0, 0.25),
-      end: Offset.zero,
-    ).animate(heroIntro);
-
     return NotificationListener<ScrollNotification>(
       onNotification: (notification) {
         if (notification.metrics.axis != Axis.vertical) return false;
@@ -481,19 +439,11 @@ class _ScaffoldContentState extends State<_ScaffoldContent>
         isLooping: widget.isLooping,
         accentColor: widget.selectedSeed.color,
         onIconTap: widget.onIconTap,
-        gridHeader: widget.introVisible
-            ? FadeTransition(
-                opacity: heroIntro,
-                child: SlideTransition(
-                  position: heroSlide,
-                  child: HeroSection(
-                    onOpenHowItWorks: widget.onOpenHowItWorks,
-                    onIconTap: widget.onHeroIconTap,
-                    accentColor: widget.selectedSeed.color,
-                  ),
-                ),
-              )
-            : const SizedBox.shrink(),
+        gridHeader: HeroSection(
+          onOpenHowItWorks: widget.onOpenHowItWorks,
+          onIconTap: widget.onHeroIconTap,
+          accentColor: widget.selectedSeed.color,
+        ),
         heroSelectedIcon: widget.heroSelectedIcon,
         onHeroSelectedIconConsumed: widget.onHeroSelectedIconConsumed,
       ),
@@ -1223,8 +1173,8 @@ class _HeroIconButtonState extends State<HeroIconButton>
               animationStyle: const AnimationStyle(
                 duration: Duration(milliseconds: 530),
                 reverseDuration: Duration(milliseconds: 800),
-                curve: Cubic(0.22, 1, 0.36, 1),
-                reverseCurve: Cubic(0.4, 0, 0.2, 1),
+                curve: Curves.ease,
+                reverseCurve: Curves.ease,
               ),
             ),
           ),
@@ -1528,8 +1478,8 @@ class _DiagonalWipeIconGridItemState extends State<DiagonalWipeIconGridItem>
       reverseDuration: Duration(
         milliseconds: (800 * widget.animationMultiplier).round(),
       ),
-      curve: const Cubic(0.22, 1, 0.36, 1),
-      reverseCurve: const Cubic(0.4, 0, 0.2, 1),
+      curve: Curves.ease,
+      reverseCurve: Curves.ease,
     );
     final Color borderColor = _pressed
         ? widget.accentColor
@@ -2035,6 +1985,9 @@ class IconPreviewDialog extends StatefulWidget {
 }
 
 class _IconPreviewDialogState extends State<IconPreviewDialog> {
+  static const int _previewWipeInDurationMillis = 680;
+  static const int _previewWipeOutDurationMillis = 980;
+
   bool _isWiped = false;
   bool _isPlaying = true;
   bool _previewSlowMode = false;
@@ -2082,8 +2035,8 @@ class _IconPreviewDialogState extends State<IconPreviewDialog> {
     while (mounted && _isPlaying && token == _loopToken) {
       setState(() => _isWiped = true);
       final delay = autoPlayDelay(
-        wipeInDurationMillis,
-        _isSlow ? slowAnimationMultiplier : 1.0,
+        _previewWipeInDurationMillis,
+        _previewAnimationMultiplier,
       );
       if (!await _awaitDelay(token, delay)) {
         return;
@@ -2091,7 +2044,11 @@ class _IconPreviewDialogState extends State<IconPreviewDialog> {
       if (!mounted || token != _loopToken || !_isPlaying) break;
 
       setState(() => _isWiped = false);
-      if (!await _awaitDelay(token, delay)) {
+      final reverseDelay = autoPlayDelay(
+        _previewWipeOutDurationMillis,
+        _previewAnimationMultiplier,
+      );
+      if (!await _awaitDelay(token, reverseDelay)) {
         return;
       }
       if (!mounted || token != _loopToken || !_isPlaying) break;
@@ -2119,6 +2076,9 @@ class _IconPreviewDialogState extends State<IconPreviewDialog> {
   }
 
   bool get _isSlow => _previewSlowMode || widget.baseAnimationMultiplier > 1.0;
+
+  double get _previewAnimationMultiplier =>
+      _isSlow ? slowAnimationMultiplier : 1.0;
 
   bool get _previewIsWiped => _isPlaying
       ? _isWiped
@@ -2283,13 +2243,19 @@ class _IconPreviewDialogState extends State<IconPreviewDialog> {
                 size: 120,
                 animationStyle: AnimationStyle(
                   duration: Duration(
-                    milliseconds: _previewSlowMode ? 1060 : 530,
+                    milliseconds: scaledDuration(
+                      _previewWipeInDurationMillis,
+                      _previewAnimationMultiplier,
+                    ),
                   ),
                   reverseDuration: Duration(
-                    milliseconds: _previewSlowMode ? 1600 : 800,
+                    milliseconds: scaledDuration(
+                      _previewWipeOutDurationMillis,
+                      _previewAnimationMultiplier,
+                    ),
                   ),
-                  curve: const Cubic(0.22, 1, 0.36, 1),
-                  reverseCurve: const Cubic(0.4, 0, 0.2, 1),
+                  curve: Curves.ease,
+                  reverseCurve: Curves.ease,
                 ),
               ),
             ),
@@ -2534,36 +2500,14 @@ class HowItWorksDialog extends StatefulWidget {
   State<HowItWorksDialog> createState() => _HowItWorksDialogState();
 }
 
-class _HowItWorksDialogState extends State<HowItWorksDialog>
-    with TickerProviderStateMixin {
+class _HowItWorksDialogState extends State<HowItWorksDialog> {
   static const _flowFrameHeight = 100.0;
   static const _flowSquareSize = 64.0;
   static const _howItWorksAnimationMultiplier = slowAnimationMultiplier;
-  static const _howItWorksWipeInCurve = Cubic(0.33, 0.0, 0.67, 1.0);
-  static const _howItWorksWipeOutCurve = Cubic(0.33, 0.0, 0.67, 1.0);
+  static const Curve _howItWorksWipeInCurve = Curves.ease;
+  static const Curve _howItWorksWipeOutCurve = Curves.ease;
 
   late WipeDirection _direction = widget.initialDirection;
-  int _loopToken = 0;
-  late final AnimationController _progressController = AnimationController(
-    vsync: this,
-    value: 0,
-    lowerBound: 0,
-    upperBound: 1,
-  );
-
-  @override
-  void initState() {
-    super.initState();
-    _startLoop();
-  }
-
-  @override
-  void dispose() {
-    _loopToken++;
-    _progressController.stop();
-    _progressController.dispose();
-    super.dispose();
-  }
 
   int _durationForIn() {
     return scaledDuration(wipeInDurationMillis, _howItWorksAnimationMultiplier);
@@ -2574,41 +2518,29 @@ class _HowItWorksDialogState extends State<HowItWorksDialog>
         wipeOutDurationMillis, _howItWorksAnimationMultiplier);
   }
 
-  void _startLoop() {
-    _loopToken++;
-    _progressController.stop();
-    final int token = _loopToken;
-    _runLoop(token);
-  }
-
-  Future<void> _animateToTarget(
-    double targetValue,
-    int durationMillis,
-    Curve curve,
-  ) {
-    return _progressController.animateTo(
-      targetValue.clamp(0.0, 1.0),
-      duration: Duration(milliseconds: durationMillis),
-      curve: curve,
+  Duration _cycleDuration() {
+    return Duration(
+      milliseconds: _durationForIn() + _durationForOut(),
     );
   }
 
-  Future<void> _runLoop(int token) async {
-    while (mounted && token == _loopToken) {
-      await _animateToTarget(
-        1,
-        _durationForIn(),
-        _howItWorksWipeInCurve,
-      );
-      if (!mounted || token != _loopToken) return;
-
-      await _animateToTarget(
-        0,
-        _durationForOut(),
-        _howItWorksWipeOutCurve,
-      );
-      if (!mounted || token != _loopToken) return;
-    }
+  Animatable<double> _progressAnimatable() {
+    return TweenSequence<double>([
+      TweenSequenceItem<double>(
+        tween: Tween<double>(
+          begin: 0,
+          end: 1,
+        ).chain(CurveTween(curve: _howItWorksWipeInCurve)),
+        weight: _durationForIn().toDouble(),
+      ),
+      TweenSequenceItem<double>(
+        tween: Tween<double>(
+          begin: 1,
+          end: 0,
+        ).chain(CurveTween(curve: _howItWorksWipeOutCurve)),
+        weight: _durationForOut().toDouble(),
+      ),
+    ]);
   }
 
   @override
@@ -2630,10 +2562,11 @@ class _HowItWorksDialogState extends State<HowItWorksDialog>
         ),
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(32),
-          child: AnimatedBuilder(
-            animation: _progressController,
-            builder: (context, _) {
-              final progress = _progressController.value.clamp(0.0, 1.0);
+          child: RepeatingAnimationBuilder<double>(
+            duration: _cycleDuration(),
+            animatable: _progressAnimatable(),
+            builder: (context, progress, _) {
+              final clampedProgress = progress.clamp(0.0, 1.0);
               return Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -2665,7 +2598,7 @@ class _HowItWorksDialogState extends State<HowItWorksDialog>
                   _howItWorksFlow(
                     allowedColor,
                     blockedColor,
-                    progress,
+                    clampedProgress,
                   ),
                   const SizedBox(height: 20),
                   Text(
@@ -2829,8 +2762,16 @@ class _HowItWorksDialogState extends State<HowItWorksDialog>
       padding: padding,
       child: DiagonalWipeTransition(
         progress: AlwaysStoppedAnimation(progress),
-        baseChild: Icon(fallbackIconData(baseIconName)),
-        wipedChild: Icon(fallbackIconData(wipedIconName)),
+        baseChild: materialSymbolIcon(
+          symbolName: baseIconName,
+          size: _flowSquareSize,
+          color: baseTint,
+        ),
+        wipedChild: materialSymbolIcon(
+          symbolName: wipedIconName,
+          size: _flowSquareSize,
+          color: wipedTint,
+        ),
         size: _flowSquareSize,
         direction: direction,
       ),

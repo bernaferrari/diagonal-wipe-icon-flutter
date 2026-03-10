@@ -135,6 +135,11 @@ final List<MaterialWipeIconPair> coreMaterialWipeIconCatalog = [
     disabledIconName: "BarChartOff",
   ),
   MaterialWipeIconPair(
+    label: "Bedtime",
+    enabledIconName: "Bedtime",
+    disabledIconName: "BedtimeOff",
+  ),
+  MaterialWipeIconPair(
     label: "Bid Landscape",
     enabledIconName: "BidLandscape",
     disabledIconName: "BidLandscapeDisabled",
@@ -157,13 +162,6 @@ final List<MaterialWipeIconPair> coreMaterialWipeIconCatalog = [
     disabledIconName: "ChatBubbleOff",
   ),
   MaterialWipeIconPair(
-    label: "Comment",
-    enabledIconName: "Comment",
-    disabledIconName: "CommentsDisabled",
-    enabledCodeIconName: "Comment",
-    disabledCodeIconName: "CommentsDisabled",
-  ),
-  MaterialWipeIconPair(
     label: "Closed Caption",
     enabledIconName: "ClosedCaption",
     disabledIconName: "ClosedCaptionDisabled",
@@ -177,6 +175,13 @@ final List<MaterialWipeIconPair> coreMaterialWipeIconCatalog = [
     label: "Code",
     enabledIconName: "Code",
     disabledIconName: "CodeOff",
+  ),
+  MaterialWipeIconPair(
+    label: "Comment",
+    enabledIconName: "Comment",
+    disabledIconName: "CommentsDisabled",
+    enabledCodeIconName: "Comment",
+    disabledCodeIconName: "CommentsDisabled",
   ),
   MaterialWipeIconPair(
     label: "Contactless",
@@ -403,11 +408,18 @@ final List<MaterialWipeIconPair> coreMaterialWipeIconCatalog = [
     disabledCodeIconName: "HeadsetOff",
   ),
   MaterialWipeIconPair(
-    label: "Hearing Aid Left",
+    label: "Hearing",
+    enabledIconName: "Hearing",
+    disabledIconName: "HearingDisabled",
+    enabledCodeIconName: "Hearing",
+    disabledCodeIconName: "HearingDisabled",
+  ),
+  MaterialWipeIconPair(
+    label: "Hearing Aid",
     enabledIconName: "HearingAid",
-    disabledIconName: "HearingAidDisabledLeft",
+    disabledIconName: "HearingAidDisabled",
     enabledCodeIconName: "HearingAid",
-    disabledCodeIconName: "HearingAidDisabledLeft",
+    disabledCodeIconName: "HearingAidDisabled",
   ),
   MaterialWipeIconPair(
     label: "Hls",
@@ -435,16 +447,16 @@ final List<MaterialWipeIconPair> coreMaterialWipeIconCatalog = [
     disabledIconName: "LabelOff",
   ),
   MaterialWipeIconPair(
-    label: "Link",
-    enabledIconName: "Link",
-    disabledIconName: "LinkOff",
-  ),
-  MaterialWipeIconPair(
     label: "Lightbulb",
     enabledIconName: "Lightbulb",
     disabledIconName: "LightOff",
     enabledCodeIconName: "Lightbulb",
     disabledCodeIconName: "LightOff",
+  ),
+  MaterialWipeIconPair(
+    label: "Link",
+    enabledIconName: "Link",
+    disabledIconName: "LinkOff",
   ),
   MaterialWipeIconPair(
     label: "Location",
@@ -471,6 +483,13 @@ final List<MaterialWipeIconPair> coreMaterialWipeIconCatalog = [
     disabledIconName: "MatchCaseOff",
   ),
   MaterialWipeIconPair(
+    label: "Media Bluetooth",
+    enabledIconName: "MediaBluetoothOn",
+    disabledIconName: "MediaBluetoothOff",
+    enabledCodeIconName: "MediaBluetoothOn",
+    disabledCodeIconName: "MediaBluetoothOff",
+  ),
+  MaterialWipeIconPair(
     label: "Media Output",
     enabledIconName: "MediaOutput",
     disabledIconName: "MediaOutputOff",
@@ -481,13 +500,6 @@ final List<MaterialWipeIconPair> coreMaterialWipeIconCatalog = [
     disabledIconName: "MicExternalOff",
     enabledCodeIconName: "MicExternalOn",
     disabledCodeIconName: "MicExternalOff",
-  ),
-  MaterialWipeIconPair(
-    label: "Music",
-    enabledIconName: "MusicNote",
-    disabledIconName: "MusicOff",
-    enabledCodeIconName: "MusicNote",
-    disabledCodeIconName: "MusicOff",
   ),
   MaterialWipeIconPair(
     label: "Mobile",
@@ -527,13 +539,6 @@ final List<MaterialWipeIconPair> coreMaterialWipeIconCatalog = [
     disabledIconName: "ModeFanOff",
   ),
   MaterialWipeIconPair(
-    label: "Noise Control",
-    enabledIconName: "NoiseControlOn",
-    disabledIconName: "NoiseControlOff",
-    enabledCodeIconName: "NoiseControlOn",
-    disabledCodeIconName: "NoiseControlOff",
-  ),
-  MaterialWipeIconPair(
     label: "Mouse Lock",
     enabledIconName: "MouseLock",
     disabledIconName: "MouseLockOff",
@@ -542,6 +547,13 @@ final List<MaterialWipeIconPair> coreMaterialWipeIconCatalog = [
     label: "Movie",
     enabledIconName: "Movie",
     disabledIconName: "MovieOff",
+  ),
+  MaterialWipeIconPair(
+    label: "Music",
+    enabledIconName: "MusicNote",
+    disabledIconName: "MusicOff",
+    enabledCodeIconName: "MusicNote",
+    disabledCodeIconName: "MusicOff",
   ),
   MaterialWipeIconPair(
     label: "Near Me",
@@ -564,13 +576,6 @@ final List<MaterialWipeIconPair> coreMaterialWipeIconCatalog = [
     disabledIconName: "NightSightAutoOff",
   ),
   MaterialWipeIconPair(
-    label: "No Food",
-    enabledIconName: "Fastfood",
-    disabledIconName: "NoFood",
-    enabledCodeIconName: "Fastfood",
-    disabledCodeIconName: "NoFood",
-  ),
-  MaterialWipeIconPair(
     label: "No Accounts",
     enabledIconName: "AccountCircle",
     disabledIconName: "NoAccounts",
@@ -583,6 +588,13 @@ final List<MaterialWipeIconPair> coreMaterialWipeIconCatalog = [
     disabledIconName: "NoEncryption",
     enabledCodeIconName: "Lock",
     disabledCodeIconName: "NoEncryption",
+  ),
+  MaterialWipeIconPair(
+    label: "No Food",
+    enabledIconName: "Fastfood",
+    disabledIconName: "NoFood",
+    enabledCodeIconName: "Fastfood",
+    disabledCodeIconName: "NoFood",
   ),
   MaterialWipeIconPair(
     label: "No Luggage",
@@ -619,6 +631,13 @@ final List<MaterialWipeIconPair> coreMaterialWipeIconCatalog = [
     disabledIconName: "NoTransfer",
     enabledCodeIconName: "DirectionsBus",
     disabledCodeIconName: "NoTransfer",
+  ),
+  MaterialWipeIconPair(
+    label: "Noise Control",
+    enabledIconName: "NoiseControlOn",
+    disabledIconName: "NoiseControlOff",
+    enabledCodeIconName: "NoiseControlOn",
+    disabledCodeIconName: "NoiseControlOff",
   ),
   MaterialWipeIconPair(
     label: "Notification Audio",
@@ -705,6 +724,13 @@ final List<MaterialWipeIconPair> coreMaterialWipeIconCatalog = [
     disabledIconName: "PublicOff",
   ),
   MaterialWipeIconPair(
+    label: "Raw",
+    enabledIconName: "RawOn",
+    disabledIconName: "RawOff",
+    enabledCodeIconName: "RawOn",
+    disabledCodeIconName: "RawOff",
+  ),
+  MaterialWipeIconPair(
     label: "Receipt Long",
     enabledIconName: "ReceiptLong",
     disabledIconName: "ReceiptLongOff",
@@ -713,13 +739,6 @@ final List<MaterialWipeIconPair> coreMaterialWipeIconCatalog = [
     label: "Report",
     enabledIconName: "Report",
     disabledIconName: "ReportOff",
-  ),
-  MaterialWipeIconPair(
-    label: "Raw",
-    enabledIconName: "RawOn",
-    disabledIconName: "RawOff",
-    enabledCodeIconName: "RawOn",
-    disabledCodeIconName: "RawOff",
   ),
   MaterialWipeIconPair(
     label: "Router",
@@ -914,11 +933,6 @@ final List<MaterialWipeIconPair> knownProblemsMaterialWipeIconCatalog = [
     disabledCodeIconName: "ApprovalDelegationOff",
   ),
   MaterialWipeIconPair(
-    label: "Bedtime",
-    enabledIconName: "Bedtime",
-    disabledIconName: "BedtimeOff",
-  ),
-  MaterialWipeIconPair(
     label: "Contrast",
     enabledIconName: "Contrast",
     disabledIconName: "ContrastRtlOff",
@@ -933,25 +947,11 @@ final List<MaterialWipeIconPair> knownProblemsMaterialWipeIconCatalog = [
     disabledCodeIconName: "DesktopAccessDisabled",
   ),
   MaterialWipeIconPair(
-    label: "Hearing",
-    enabledIconName: "Hearing",
-    disabledIconName: "HearingDisabled",
-    enabledCodeIconName: "Hearing",
-    disabledCodeIconName: "HearingDisabled",
-  ),
-  MaterialWipeIconPair(
-    label: "Hearing Aid",
+    label: "Hearing Aid Left",
     enabledIconName: "HearingAid",
-    disabledIconName: "HearingAidDisabled",
+    disabledIconName: "HearingAidDisabledLeft",
     enabledCodeIconName: "HearingAid",
-    disabledCodeIconName: "HearingAidDisabled",
-  ),
-  MaterialWipeIconPair(
-    label: "Media Bluetooth",
-    enabledIconName: "MediaBluetoothOn",
-    disabledIconName: "MediaBluetoothOff",
-    enabledCodeIconName: "MediaBluetoothOn",
-    disabledCodeIconName: "MediaBluetoothOff",
+    disabledCodeIconName: "HearingAidDisabledLeft",
   ),
   MaterialWipeIconPair(
     label: "Mic",
