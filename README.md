@@ -39,7 +39,7 @@ flutter pub add diagonal_wipe_icon
 Or add it manually to your `pubspec.yaml`:
 ```yaml
 dependencies:
-  diagonal_wipe_icon: ^0.1.0
+  diagonal_wipe_icon: ^0.1.1
 ```
 
 Then, use it anywhere you would typically place an `Icon`, such as inside an `IconButton` or a `GestureDetector`:
@@ -49,7 +49,7 @@ import 'package:diagonal_wipe_icon/diagonal_wipe_icon.dart';
 
 IconButton(
   onPressed: () => setState(() => isFavorite = !isFavorite),
-  icon: AnimatedDiagonalWipeIcon(
+  icon: AnimatedDiagonalWipe.icon(
     isWiped: isFavorite,
     baseIcon: Icons.favorite_border,
     wipedIcon: Icons.favorite,
@@ -62,8 +62,8 @@ IconButton(
 
 | If you have... | Use |
 | --- | --- |
-| Two `IconData` values | `AnimatedDiagonalWipeIcon(...)` |
-| Two widgets | `AnimatedDiagonalWipeIcon.raw(...)` |
+| Two `IconData` values | `AnimatedDiagonalWipe.icon(...)` |
+| Two widgets | `AnimatedDiagonalWipe(...)` |
 | An `Animation<double>` and two widgets | `DiagonalWipeTransition(...)` |
 
 ### Key Properties
@@ -79,10 +79,10 @@ IconButton(
 
 ## 🎨 Customization
 
-`AnimatedDiagonalWipeIcon` animates automatically when `isWiped` changes. You can deeply customize the transition timing and ease using `animationStyle` or tweak the exact direction and colors:
+`AnimatedDiagonalWipe` animates automatically when `isWiped` changes. You can deeply customize the transition timing and ease using `animationStyle` or tweak the exact direction and colors:
 
 ```dart
-AnimatedDiagonalWipeIcon(
+AnimatedDiagonalWipe.icon(
   // State and Icons
   isWiped: isMuted,
   baseIcon: Icons.volume_up,
@@ -130,7 +130,7 @@ The effect works by revealing one layer while clipping the other across a shared
 - **Why use this instead of `AnimatedSwitcher`?**  
   Use it when you want an icon transition to feel like a state change. If a simple cross-fade is enough, `AnimatedSwitcher` is a great fit.
 - **Can I use custom widgets?**  
-  Yes! Use `AnimatedDiagonalWipeIcon.raw(...)` for arbitrary widgets, like a `CircularProgressIndicator`.
+  Yes! Use `AnimatedDiagonalWipe(...)` for arbitrary widgets, like a `CircularProgressIndicator`.
 - **Run the Demo Locally:**
   ```bash
   cd example

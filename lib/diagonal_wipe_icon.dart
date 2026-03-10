@@ -11,9 +11,9 @@ const AnimationStyle _defaultAnimationStyle = AnimationStyle(
   reverseCurve: Curves.ease,
 );
 
-/// Animates between two icon widgets by revealing the destination icon with a
+/// Animates between two widgets by revealing the destination widget with a
 /// diagonal, horizontal, or vertical wipe.
-class AnimatedDiagonalWipeIcon extends StatefulWidget {
+class AnimatedDiagonalWipe extends StatefulWidget {
   final bool isWiped;
   final Color? baseTint;
   final Color? wipedTint;
@@ -27,14 +27,14 @@ class AnimatedDiagonalWipeIcon extends StatefulWidget {
   final IconData? _baseIconData;
   final IconData? _wipedIconData;
 
-  /// Creates a wipe icon from two prebuilt widgets.
+  /// Creates a wipe transition between two prebuilt widgets.
   ///
   /// This is the most permissive constructor. The provided children are
   /// centered, clipped to a square box sized by [size], and wrapped in an
   /// [IconTheme]. Widgets that respect [IconTheme] receive the resolved tint
   /// and size automatically. Widgets with explicit styling keep their own
   /// color or size values.
-  const AnimatedDiagonalWipeIcon.raw({
+  const AnimatedDiagonalWipe({
     super.key,
     required this.isWiped,
     required Widget baseChild,
@@ -52,11 +52,11 @@ class AnimatedDiagonalWipeIcon extends StatefulWidget {
         _wipedIconData = null,
         assert(seamOverlapPx >= 0);
 
-  /// Creates a wipe icon from two [IconData] values.
+  /// Creates a wipe transition between two [IconData] values.
   ///
   /// Use [animationStyle] to customize the timing and easing of the implicit
   /// animation.
-  const AnimatedDiagonalWipeIcon({
+  const AnimatedDiagonalWipe.icon({
     super.key,
     required this.isWiped,
     required IconData baseIcon,
@@ -75,11 +75,11 @@ class AnimatedDiagonalWipeIcon extends StatefulWidget {
         assert(seamOverlapPx >= 0);
 
   @override
-  State<AnimatedDiagonalWipeIcon> createState() =>
-      _AnimatedDiagonalWipeIconState();
+  State<AnimatedDiagonalWipe> createState() =>
+      _AnimatedDiagonalWipeState();
 }
 
-class _AnimatedDiagonalWipeIconState extends State<AnimatedDiagonalWipeIcon>
+class _AnimatedDiagonalWipeState extends State<AnimatedDiagonalWipe>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
   late Animation<double> _animation;
@@ -116,7 +116,7 @@ class _AnimatedDiagonalWipeIconState extends State<AnimatedDiagonalWipeIcon>
   }
 
   @override
-  void didUpdateWidget(covariant AnimatedDiagonalWipeIcon oldWidget) {
+  void didUpdateWidget(covariant AnimatedDiagonalWipe oldWidget) {
     super.didUpdateWidget(oldWidget);
     final bool targetChanged = oldWidget.isWiped != widget.isWiped;
     final bool parametersChanged =

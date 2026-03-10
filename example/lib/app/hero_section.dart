@@ -433,7 +433,7 @@ class _HeroIconButtonState extends State<HeroIconButton>
                   : null,
             ),
             alignment: Alignment.center,
-            child: AnimatedDiagonalWipeIcon(
+            child: AnimatedDiagonalWipe.icon(
               isWiped: widget.isWiped,
               baseIcon: fallbackIconData(widget.iconPair.enabledIcon),
               wipedIcon: fallbackIconData(widget.iconPair.disabledIcon),

@@ -57,7 +57,7 @@ import 'package:diagonal_wipe_icon/diagonal_wipe_icon.dart';
 bool isWiped = false;
 
 // Implicit animation
-AnimatedDiagonalWipeIcon(
+AnimatedDiagonalWipe.icon(
   isWiped: isWiped,
   size: 120,
   baseIcon: $enabledIcon,

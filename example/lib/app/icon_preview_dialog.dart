@@ -268,7 +268,7 @@ class _IconPreviewDialogState extends State<IconPreviewDialog> {
                     .withValues(alpha: 0.5),
               ),
               alignment: Alignment.center,
-              child: AnimatedDiagonalWipeIcon(
+              child: AnimatedDiagonalWipe.icon(
                 isWiped: _previewIsWiped,
                 baseIcon: fallbackIconData(widget.iconPair.enabledIcon),
                 wipedIcon: fallbackIconData(widget.iconPair.disabledIcon),

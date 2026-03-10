@@ -14,7 +14,7 @@ void main() {
   testWidgets('renders with semantics label', (WidgetTester tester) async {
     await tester.pumpWidget(
       buildHost(
-        const AnimatedDiagonalWipeIcon(
+        const AnimatedDiagonalWipe.icon(
           isWiped: false,
           baseIcon: Icons.visibility,
           wipedIcon: Icons.visibility_off,
@@ -36,7 +36,7 @@ void main() {
             return Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                AnimatedDiagonalWipeIcon(
+                AnimatedDiagonalWipe.icon(
                   isWiped: isWiped,
                   baseIcon: Icons.volume_up,
                   wipedIcon: Icons.volume_off,
@@ -65,7 +65,7 @@ void main() {
   ) async {
     await tester.pumpWidget(
       buildHost(
-        const AnimatedDiagonalWipeIcon(
+        const AnimatedDiagonalWipe.icon(
           isWiped: true,
           baseIcon: Icons.wifi,
           wipedIcon: Icons.wifi_off,
@@ -80,7 +80,7 @@ void main() {
       ),
     );
 
-    expect(find.byType(AnimatedDiagonalWipeIcon), findsOneWidget);
+    expect(find.byType(AnimatedDiagonalWipe), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 
@@ -89,7 +89,7 @@ void main() {
   ) async {
     await tester.pumpWidget(
       buildHost(
-        AnimatedDiagonalWipeIcon.raw(
+        AnimatedDiagonalWipe(
           isWiped: false,
           baseChild: Builder(
             builder: (context) {
@@ -116,7 +116,7 @@ void main() {
   ) async {
     await tester.pumpWidget(
       buildHost(
-        const AnimatedDiagonalWipeIcon.raw(
+        const AnimatedDiagonalWipe(
           isWiped: false,
           baseChild: Icon(Icons.check, color: Colors.blue, size: 40),
           wipedChild: Icon(Icons.close),
@@ -143,7 +143,7 @@ void main() {
             return Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                AnimatedDiagonalWipeIcon.raw(
+                AnimatedDiagonalWipe(
                   isWiped: isWiped,
                   baseChild: const Icon(Icons.play_arrow),
                   wipedChild: const Icon(Icons.pause),
@@ -184,7 +184,7 @@ void main() {
             return Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                AnimatedDiagonalWipeIcon(
+                AnimatedDiagonalWipe.icon(
                   isWiped: isWiped,
                   baseIcon: Icons.visibility,
                   wipedIcon: Icons.visibility_off,

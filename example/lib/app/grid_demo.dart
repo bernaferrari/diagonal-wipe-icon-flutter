@@ -364,7 +364,7 @@ class _DiagonalWipeIconGridItemState extends State<DiagonalWipeIconGridItem>
                             Center(
                               child: Padding(
                                 padding: const EdgeInsets.all(18),
-                                child: AnimatedDiagonalWipeIcon(
+                                child: AnimatedDiagonalWipe.icon(
                                   isWiped: isWiped,
                                   baseIcon: fallbackIconData(
                                     widget.iconPair.enabledIcon,
