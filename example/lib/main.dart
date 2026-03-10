@@ -702,7 +702,7 @@ class AnimatedTopBar extends StatelessWidget implements PreferredSizeWidget {
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 }
 
-class HeroSection extends StatefulWidget {
+class HeroSection extends StatelessWidget {
   const HeroSection({
     required this.onOpenHowItWorks,
     required this.onIconTap,
@@ -713,45 +713,6 @@ class HeroSection extends StatefulWidget {
   final VoidCallback? onOpenHowItWorks;
   final ValueChanged<MaterialWipeIconPair> onIconTap;
   final Color accentColor;
-
-  @override
-  State<HeroSection> createState() => _HeroSectionState();
-}
-
-class _HowItWorksButton extends StatelessWidget {
-  const _HowItWorksButton({
-    super.key,
-    required this.onTap,
-    required this.label,
-  });
-
-  final VoidCallback? onTap;
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    return FilledButton.tonal(
-      onPressed: onTap,
-      style: FilledButton.styleFrom(
-        backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
-        foregroundColor: Theme.of(context).colorScheme.onSecondaryContainer,
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(14)),
-        ),
-      ),
-      child: Text(
-        label,
-        style: Theme.of(context).textTheme.labelLarge?.copyWith(
-              fontWeight: FontWeight.w600,
-            ),
-      ),
-    );
-  }
-}
-
-class _HeroSectionState extends State<HeroSection>
-    with SingleTickerProviderStateMixin {
   static final _heroPairs = [
     MaterialWipeIconPair.symbols(
       label: 'Visibility',
@@ -780,17 +741,6 @@ class _HeroSectionState extends State<HeroSection>
     ),
   ];
 
-  late final AnimationController _controller = AnimationController(
-    vsync: this,
-    duration: const Duration(milliseconds: 2400),
-  )..repeat();
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
     return SizedBox(
@@ -802,12 +752,12 @@ class _HeroSectionState extends State<HeroSection>
             child: CustomPaint(
               painter: _HeroMeshBackgroundPainter(
                 backgroundColor: Theme.of(context).colorScheme.surface,
-                seedColor: widget.accentColor,
+                seedColor: accentColor,
               ),
             ),
           ),
           Positioned.fill(
-            child: _AnimatedHeroOrbs(accentColor: widget.accentColor),
+            child: _AnimatedHeroOrbs(accentColor: accentColor),
           ),
           Padding(
             padding: const EdgeInsets.symmetric(
@@ -850,19 +800,20 @@ class _HeroSectionState extends State<HeroSection>
                   const SizedBox(height: 28),
                   SizedBox(
                     height: 110,
-                    child: AnimatedBuilder(
-                      animation: _controller,
-                      builder: (context, _) => HeroIconShowcase(
+                    child: RepeatingAnimationBuilder<double>(
+                      duration: const Duration(milliseconds: 2400),
+                      animatable: Tween<double>(begin: 0, end: 1),
+                      builder: (context, cycleProgress, _) => HeroIconShowcase(
                         pairs: _heroPairs,
-                        cycleProgress: _controller.value,
-                        onIconTap: widget.onIconTap,
+                        cycleProgress: cycleProgress,
+                        onIconTap: onIconTap,
                       ),
                     ),
                   ),
                   const SizedBox(height: 28),
                   _HowItWorksButton(
                     key: const ValueKey('how-it-works-button'),
-                    onTap: widget.onOpenHowItWorks,
+                    onTap: onOpenHowItWorks,
                     label: 'How it works',
                   ),
                 ],
@@ -884,32 +835,53 @@ class _AnimatedHeroOrbs extends StatefulWidget {
   State<_AnimatedHeroOrbs> createState() => _AnimatedHeroOrbsState();
 }
 
-class _AnimatedHeroOrbsState extends State<_AnimatedHeroOrbs>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _controller = AnimationController(
-    vsync: this,
-    duration: const Duration(milliseconds: 25000),
-  )..repeat();
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
+class _AnimatedHeroOrbsState extends State<_AnimatedHeroOrbs> {
   @override
   Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _controller,
-      builder: (_, __) {
+    return RepeatingAnimationBuilder<double>(
+      duration: const Duration(milliseconds: 25000),
+      animatable: Tween<double>(begin: 0, end: 1),
+      builder: (_, orbitProgress, __) {
         return CustomPaint(
           painter: _HeroOrbsPainter(
             accentColor: widget.accentColor,
-            orbitPhase: _controller.value * math.pi * 2,
+            orbitPhase: orbitProgress * math.pi * 2,
           ),
           child: const SizedBox.expand(),
         );
       },
+    );
+  }
+}
+
+class _HowItWorksButton extends StatelessWidget {
+  const _HowItWorksButton({
+    super.key,
+    required this.onTap,
+    required this.label,
+  });
+
+  final VoidCallback? onTap;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return FilledButton.tonal(
+      onPressed: onTap,
+      style: FilledButton.styleFrom(
+        backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
+        foregroundColor: Theme.of(context).colorScheme.onSecondaryContainer,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(14)),
+        ),
+      ),
+      child: Text(
+        label,
+        style: Theme.of(context).textTheme.labelLarge?.copyWith(
+              fontWeight: FontWeight.w600,
+            ),
+      ),
     );
   }
 }
