@@ -172,6 +172,50 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  testWidgets('AnimationStyle.noAnimation snaps immediately to the target', (
+    WidgetTester tester,
+  ) async {
+    bool isWiped = false;
+
+    await tester.pumpWidget(
+      buildHost(
+        StatefulBuilder(
+          builder: (context, setState) {
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                AnimatedDiagonalWipeIcon(
+                  isWiped: isWiped,
+                  baseIcon: Icons.visibility,
+                  wipedIcon: Icons.visibility_off,
+                  animationStyle: AnimationStyle.noAnimation,
+                ),
+                TextButton(
+                  onPressed: () => setState(() => isWiped = !isWiped),
+                  child: const Text('toggle immediate'),
+                ),
+              ],
+            );
+          },
+        ),
+      ),
+    );
+
+    DiagonalWipeTransition transition = tester.widget<DiagonalWipeTransition>(
+      find.byType(DiagonalWipeTransition),
+    );
+    expect(transition.progress.value, 0);
+
+    await tester.tap(find.text('toggle immediate'));
+    await tester.pump();
+
+    transition = tester.widget<DiagonalWipeTransition>(
+      find.byType(DiagonalWipeTransition),
+    );
+    expect(transition.progress.value, 1);
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('transition constructor renders without exceptions', (
     WidgetTester tester,
   ) async {

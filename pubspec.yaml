@@ -1,5 +1,5 @@
 name: diagonal_wipe_icon
-description: A Flutter widget for SF Symbols-style icon transitions with diagonal, horizontal, or vertical wipe masks.
+description: Polished wipe-style icon transitions for Flutter with diagonal, horizontal, and vertical directions.
 version: 0.1.0
 homepage: https://github.com/bernaferrari/diagonal-wipe-icon
 repository: https://github.com/bernaferrari/diagonal-wipe-icon
@@ -19,7 +19,7 @@ screenshots:
 topics:
   - animation
   - icons
-  - material-design
+  - flutter
   - transitions
 
 environment:

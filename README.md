@@ -1,19 +1,19 @@
 <div align="center">
 
-<img src="assets/animated-icons.webp" width="680" alt="Diagonal wipe icon animation in Flutter">
+<a href="https://bernaferrari.github.io/diagonal-wipe-icon-flutter/">
+  <img src="assets/animated-icons.webp" width="680" alt="Diagonal wipe icon animation in Flutter">
+</a>
 
 # Diagonal Wipe Icon
-**SF Symbols-style icon transitions for Flutter**
+**Wipe-style icon transitions for Flutter**
 
-One package, two clean APIs: `AnimatedDiagonalWipeIcon` for app-state toggles, and `DiagonalWipeTransition` for controller-driven animations.
-
-<img src="assets/preview.png" width="680" alt="Diagonal wipe icon static preview in Flutter">
+**[Live Demo 🚀](https://bernaferrari.github.io/diagonal-wipe-icon-flutter/)**
 
 </div>
 
-## What Is This?
+## Overview
 
-Apple's SF Symbols makes wipe-style icon transitions feel built in. In Flutter, the same effect usually ends up as manual icon swapping, one-off clip logic, or a custom animation that gets rewritten every time the UI needs a polished toggle.
+Apple's SF Symbols make wipe-style icon transitions feel built in. Flutter does not ship that interaction out of the box, so it is easier to skip the animation entirely, which makes the UI feel cheaper and less polished.
 
 **Diagonal Wipe Icon** packages that interaction into a reusable Flutter component. It blends two icon states with a moving mask and supports diagonal, horizontal, and vertical wipe directions.
 
@@ -25,6 +25,15 @@ Good fits:
 - any icon swap that should feel more refined than a hard cut or cross-fade
 
 **No runtime dependencies beyond Flutter.**
+The core implementation also lives in a single Dart file, so you can vendor it directly into your own codebase if you prefer.
+
+<div align="center">
+
+<a href="https://bernaferrari.github.io/diagonal-wipe-icon-flutter/">
+  <img src="assets/preview.png" width="680" alt="Diagonal wipe icon static preview in Flutter">
+</a>
+
+</div>
 
 ## Quick Start
 
@@ -37,12 +46,6 @@ Or add it manually to `pubspec.yaml`:
 ```yaml
 dependencies:
   diagonal_wipe_icon: ^0.1.0
-```
-
-If you prefer vendoring the implementation, the core widget lives in a single file: [`lib/diagonal_wipe_icon.dart`](lib/diagonal_wipe_icon.dart). You can also fetch it directly instead of adding the package:
-
-```bash
-curl -O https://raw.githubusercontent.com/bernaferrari/diagonal-wipe-icon-flutter/main/lib/diagonal_wipe_icon.dart
 ```
 
 Minimal example:
@@ -84,7 +87,7 @@ class _FavoriteButtonState extends State<FavoriteButton> {
 | two already-built widgets and a boolean state | `AnimatedDiagonalWipeIcon.raw(...)` |
 | an existing `Animation<double>` | `DiagonalWipeTransition(...)` |
 
-Most apps should start with `AnimatedDiagonalWipeIcon(...)`.
+Most apps should start with `AnimatedDiagonalWipeIcon(...)`. Reach for `raw(...)` when your two states are already widgets, and use `DiagonalWipeTransition(...)` when another controller should drive the wipe directly.
 
 ## Animation Style
 
@@ -96,8 +99,6 @@ AnimatedDiagonalWipeIcon(
   baseIcon: Icons.volume_up,
   wipedIcon: Icons.volume_off,
   baseTint: Colors.teal,
-  wipedTint: Colors.teal,
-  direction: WipeDirection.bottomLeftToTopRight,
   animationStyle: const AnimationStyle(
     duration: Duration(milliseconds: 220),
     reverseDuration: Duration(milliseconds: 300),
@@ -108,6 +109,19 @@ AnimatedDiagonalWipeIcon(
 ```
 
 If you do nothing, the widget uses its built-in default style. If you need to disable the implicit animation entirely, pass `AnimationStyle.noAnimation`.
+
+You can still customize the wipe direction or use different tints when needed:
+
+```dart
+AnimatedDiagonalWipeIcon(
+  isWiped: isMuted,
+  baseIcon: Icons.volume_up,
+  wipedIcon: Icons.volume_off,
+  baseTint: Colors.teal,
+  wipedTint: Colors.orange,
+  direction: WipeDirection.bottomLeftToTopRight,
+)
+```
 
 ## Raw Widgets
 
@@ -133,7 +147,7 @@ AnimatedDiagonalWipeIcon.raw(
 
 Raw children are centered, clipped to the wipe bounds, and wrapped in an `IconTheme`. Icon-like widgets inherit the resolved size and tint automatically, while explicitly styled widgets keep their own styling.
 
-## Transition Primitive
+## Controller-Driven Transition
 
 Use `DiagonalWipeTransition(...)` when the animation is driven elsewhere:
 
@@ -195,9 +209,13 @@ Available `WipeDirection` values:
 
 <div align="center">
 
-<img src="assets/how-it-works-mini.webp" width="680" alt="Diagonal wipe icon animation showing how the reveal mask moves">
+<a href="https://bernaferrari.github.io/diagonal-wipe-icon-flutter/">
+  <img src="assets/how-it-works-mini.webp" width="680" alt="Diagonal wipe icon animation showing how the reveal mask moves">
+</a>
 
-<img src="assets/how-it-works.png" width="680" alt="Diagram showing how one icon is clipped away while the other is revealed">
+<a href="https://bernaferrari.github.io/diagonal-wipe-icon-flutter/">
+  <img src="assets/how-it-works.png" width="680" alt="Diagram showing how one icon is clipped away while the other is revealed">
+</a>
 
 </div>
 
@@ -211,27 +229,26 @@ The effect works by revealing one layer while clipping the other across a shared
 | During transition | Two clipped layers plus path updates |
 | Typical usage | Smooth on modern devices for normal icon counts |
 
-- settled states render only one layer
-- animated states isolate the work in a `RepaintBoundary`
+- settled states render only one visible layer
+- active transitions draw two clipped layers and update the wipe path each frame
 - reduce-motion accessibility settings jump directly to the final state
 
 ## FAQ
 
-- Can I use my own widgets?  
-  Yes. Use `AnimatedDiagonalWipeIcon.raw(...)` or `DiagonalWipeTransition(...)`.
+- **Why use this instead of `AnimatedSwitcher` or a cross-fade?**  
+  Use it when you want an icon transition to feel like a state change rather than a widget swap. If a simple fade is enough, `AnimatedSwitcher` is still a good fit.
 
-- Can I drive it from my own controller?  
-  Yes. Use `DiagonalWipeTransition(...)`.
+- **Is it expensive to use in lists or toolbars?**  
+  Usually no. At rest it behaves like a single visible layer, and the extra work only happens while the wipe is animating. It is intended for normal UI counts like toggles, settings rows, and media controls.
 
-- What about accessibility?  
-  Pass `semanticsLabel` on `AnimatedDiagonalWipeIcon`.
-
-- Does it work across Flutter platforms?  
-  Yes. Android, iOS, web, macOS, Windows, and Linux are supported.
+- **Do I need the package dependency, or can I just copy the source?**  
+  Either works. You can depend on the package, or copy [`lib/diagonal_wipe_icon.dart`](lib/diagonal_wipe_icon.dart) directly into your project since the core implementation lives in a single file.
 
 ## Example App
 
 The repository includes a full demo app in [`example/`](example), with controls for direction, timing, and icon pairs.
+
+Try the hosted version: **[Live Demo](https://bernaferrari.github.io/diagonal-wipe-icon-flutter/)**.
 
 Run it locally:
 
@@ -243,12 +260,18 @@ flutter run -d chrome
 
 The main demo entry point is [`example/lib/main.dart`](example/lib/main.dart).
 
+## Copy Into Your Project
+
+If you prefer copying the implementation into your own project, the core widget lives in a single file with no package dependencies beyond Flutter itself: [`lib/diagonal_wipe_icon.dart`](lib/diagonal_wipe_icon.dart).
+
+Local import:
+
+```dart
+import 'diagonal_wipe_icon.dart';
+```
+
 ## Also Available For Compose
 
-Compose Multiplatform version:
+A Compose Multiplatform version lives in the companion repository:
 
-- Repository: https://github.com/bernaferrari/diagonal-wipe-icon
-
-## License
-
-MIT
+- https://github.com/bernaferrari/diagonal-wipe-icon

@@ -180,13 +180,10 @@ class _AnimatedDiagonalWipeIconState extends State<AnimatedDiagonalWipeIcon>
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final iconThemeColor = IconTheme.of(context).color;
-    final fallbackTint = iconThemeColor ?? theme.colorScheme.onSurface;
-    final Color baseColor = widget.baseTint ?? fallbackTint;
-    final Color wipedColor = widget.wipedTint ?? fallbackTint;
+    final Color? baseColor = widget.baseTint;
+    final Color? wipedColor = widget.wipedTint ?? baseColor;
 
-    Widget wrapLayer(Widget child, Color color) {
+    Widget wrapLayer(Widget child, Color? color) {
       return Center(
         child: IconTheme.merge(
           data: IconThemeData(size: widget.size, color: color),

@@ -56,6 +56,7 @@ import 'package:diagonal_wipe_icon/diagonal_wipe_icon.dart';
 
 bool isWiped = false;
 
+// Implicit animation
 AnimatedDiagonalWipeIcon(
   isWiped: isWiped,
   size: 120,
@@ -63,6 +64,14 @@ AnimatedDiagonalWipeIcon(
   wipedIcon: $disabledIcon,
   baseTint: Theme.of(context).colorScheme.primary,
   wipedTint: Theme.of(context).colorScheme.secondary,
+);
+
+// Explicit animation with an existing Animation<double>
+DiagonalWipeTransition(
+  progress: controller,
+  size: 120,
+  baseChild: const Icon($enabledIcon),
+  wipedChild: const Icon($disabledIcon),
 );
 ''';
 }
