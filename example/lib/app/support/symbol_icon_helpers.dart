@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../demo_catalog.dart';
+import '../../demo_catalog.dart';
 import 'material_symbol_assets.dart';
 import 'material_symbol_name.dart';
 import 'wipe_icon_source.dart';

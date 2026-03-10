@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 
-import 'src/material_symbol_name.dart';
+import 'app/support/material_symbol_name.dart';
 
 MaterialSymbolName _requiredSymbolName(String catalogName) {
   try {
