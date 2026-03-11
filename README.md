@@ -39,7 +39,7 @@ flutter pub add diagonal_wipe_icon
 Or add it manually to your `pubspec.yaml`:
 ```yaml
 dependencies:
-  diagonal_wipe_icon: ^0.1.1
+  diagonal_wipe_icon: ^0.2.0
 ```
 
 Then, use it anywhere you would typically place an `Icon`, such as inside an `IconButton` or a `GestureDetector`:
@@ -74,7 +74,8 @@ IconButton(
 | `baseIcon` / `wipedIcon` | The two icons to transition between. |
 | `baseTint` / `wipedTint` | Optional colors. Inherits from `IconTheme` if null. |
 | `size` | Optional size. Inherits from `IconTheme` if null. |
-| `direction` | Defaults to `bottomLeftToTopRight`. |
+| `direction` | Forward wipe direction. Defaults to `topLeftToBottomRight`. |
+| `reverseDirection` | Optional reverse wipe direction. Defaults to `direction.opposite`. |
 | `animationStyle` | Timing constraints, curves, or disables animation entirely. |
 
 ## 🎨 Customization
@@ -91,12 +92,25 @@ AnimatedDiagonalWipe.icon(
   // Customization
   baseTint: Colors.teal,
   direction: WipeDirection.bottomLeftToTopRight, // 8 directions supported
+  reverseDirection: WipeDirection.topRightToBottomLeft,
   
   // Motion Presets
   animationStyle: const AnimationStyle(
     duration: Duration(milliseconds: 220),
     curve: Curves.fastOutSlowIn,
   ),
+)
+```
+
+If you omit `reverseDirection`, the reverse pass uses `direction.opposite`. That gives a more natural loop for common toggle icons: the wipe-in and wipe-out can both begin from the same visual side.
+
+```dart
+AnimatedDiagonalWipe.icon(
+  isWiped: isVisible,
+  baseIcon: Icons.visibility,
+  wipedIcon: Icons.visibility_off,
+  direction: WipeDirection.topLeftToBottomRight,
+  // Defaults to WipeDirection.bottomRightToTopLeft on the reverse pass.
 )
 ```
 
