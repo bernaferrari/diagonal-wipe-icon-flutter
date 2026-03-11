@@ -251,4 +251,17 @@ void main() {
     expect(icon.color, Colors.purple);
     expect(icon.size, 28);
   });
+
+  test('opposite direction flips the wipe origin', () {
+    const direction = WipeDirection.topLeftToBottomRight;
+    final path = buildWipeRevealPath(
+      width: 24,
+      height: 24,
+      progress: 0.5,
+      direction: direction.opposite,
+    );
+
+    expect(path.contains(const Offset(2, 2)), isFalse);
+    expect(path.contains(const Offset(22, 22)), isTrue);
+  });
 }
