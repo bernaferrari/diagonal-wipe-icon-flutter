@@ -1,8 +1,7 @@
-import 'dart:math' as math;
-
 import 'package:flutter/material.dart';
 
-const WipeDirection _defaultWipeDirection = WipeDirection.topLeftToBottomRight;
+const WipeDirection _defaultWipeDirection =
+    WipeDirection.topLeftToBottomRight;
 const double _defaultSeamOverlapPx = 0.8;
 const AnimationStyle _defaultAnimationStyle = AnimationStyle(
   duration: Duration(milliseconds: 530),
@@ -10,30 +9,17 @@ const AnimationStyle _defaultAnimationStyle = AnimationStyle(
   curve: Curves.ease,
   reverseCurve: Curves.ease,
 );
+const double _eps = 1e-4;
 
 /// Animates between two widgets by revealing the destination widget with a
 /// diagonal, horizontal, or vertical wipe.
 class AnimatedDiagonalWipe extends StatefulWidget {
-  final bool isWiped;
-  final Color? baseTint;
-  final Color? wipedTint;
-  final String? semanticsLabel;
-  final double size;
-  final AnimationStyle? animationStyle;
-  final WipeDirection direction;
-  final double seamOverlapPx;
-  final Widget? _baseChild;
-  final Widget? _wipedChild;
-  final IconData? _baseIconData;
-  final IconData? _wipedIconData;
-
   /// Creates a wipe transition between two prebuilt widgets.
   ///
-  /// This is the most permissive constructor. The provided children are
-  /// centered, clipped to a square box sized by [size], and wrapped in an
-  /// [IconTheme]. Widgets that respect [IconTheme] receive the resolved tint
-  /// and size automatically. Widgets with explicit styling keep their own
-  /// color or size values.
+  /// The provided children are centered, clipped to a square box sized by
+  /// [size], and wrapped in an [IconTheme]. Widgets that respect [IconTheme]
+  /// receive the resolved tint and size automatically. Widgets with explicit
+  /// styling keep their own color or size values.
   const AnimatedDiagonalWipe({
     super.key,
     required this.isWiped,
@@ -74,38 +60,63 @@ class AnimatedDiagonalWipe extends StatefulWidget {
         _wipedIconData = wipedIcon,
         assert(seamOverlapPx >= 0);
 
+  final bool isWiped;
+  final Color? baseTint;
+  final Color? wipedTint;
+  final String? semanticsLabel;
+  final double size;
+  final AnimationStyle? animationStyle;
+  final WipeDirection direction;
+  final double seamOverlapPx;
+
+  final Widget? _baseChild;
+  final Widget? _wipedChild;
+  final IconData? _baseIconData;
+  final IconData? _wipedIconData;
+
   @override
-  State<AnimatedDiagonalWipe> createState() =>
-      _AnimatedDiagonalWipeState();
+  State<AnimatedDiagonalWipe> createState() => _AnimatedDiagonalWipeState();
 }
 
 class _AnimatedDiagonalWipeState extends State<AnimatedDiagonalWipe>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
-  late Animation<double> _animation;
-  late bool _reduceMotion;
+  bool _disableAnimations = false;
+
+  AnimationStyle get _effectiveAnimationStyle =>
+      _defaultAnimationStyle.copyWith(
+        duration: widget.animationStyle?.duration,
+        reverseDuration: widget.animationStyle?.reverseDuration,
+        curve: widget.animationStyle?.curve,
+        reverseCurve: widget.animationStyle?.reverseCurve,
+      );
 
   @override
   void initState() {
     super.initState();
-    _reduceMotion = WidgetsBinding
-        .instance.platformDispatcher.accessibilityFeatures.disableAnimations;
     _controller = AnimationController(
       vsync: this,
       value: widget.isWiped ? 1 : 0,
     );
-    _animation = _controller;
-    _animateToTarget(widget.isWiped, immediate: true);
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final bool nextReduceMotion = WidgetsBinding
-        .instance.platformDispatcher.accessibilityFeatures.disableAnimations;
-    if (_reduceMotion != nextReduceMotion) {
-      _reduceMotion = nextReduceMotion;
-      _animateToTarget(widget.isWiped, immediate: true);
+    final nextDisableAnimations =
+        MediaQuery.maybeDisableAnimationsOf(context) ?? false;
+    if (_disableAnimations == nextDisableAnimations) return;
+    _disableAnimations = nextDisableAnimations;
+    _animateToTarget(widget.isWiped, immediate: true);
+  }
+
+  @override
+  void didUpdateWidget(covariant AnimatedDiagonalWipe oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    final targetChanged = oldWidget.isWiped != widget.isWiped;
+    final styleChanged = oldWidget.animationStyle != widget.animationStyle;
+    if (targetChanged || styleChanged) {
+      _animateToTarget(widget.isWiped);
     }
   }
 
@@ -115,91 +126,62 @@ class _AnimatedDiagonalWipeState extends State<AnimatedDiagonalWipe>
     super.dispose();
   }
 
-  @override
-  void didUpdateWidget(covariant AnimatedDiagonalWipe oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    final bool targetChanged = oldWidget.isWiped != widget.isWiped;
-    final bool parametersChanged =
-        oldWidget.animationStyle != widget.animationStyle ||
-            oldWidget.direction != widget.direction ||
-            oldWidget.seamOverlapPx != widget.seamOverlapPx;
-
-    if (targetChanged || parametersChanged) {
-      _animateToTarget(widget.isWiped);
-    }
-  }
-
-  void _animateToTarget(
-    bool target, {
-    bool immediate = false,
-    bool? reduceMotion,
-  }) {
+  void _animateToTarget(bool target, {bool immediate = false}) {
     if (!mounted) return;
-    final bool effectiveReduceMotion = reduceMotion ?? _reduceMotion;
 
-    if (effectiveReduceMotion || immediate) {
+    if (_disableAnimations || immediate) {
       _controller
         ..stop()
         ..value = target ? 1 : 0;
-      _animation = _controller;
       return;
     }
 
-    final AnimationStyle animationStyle = _effectiveAnimationStyle;
-    final bool isWipingIn = target;
-    final double targetValue = isWipingIn ? 1 : 0;
-    final Duration duration =
-        isWipingIn ? animationStyle.duration! : animationStyle.reverseDuration!;
-    final Curve curve =
-        isWipingIn ? animationStyle.curve! : animationStyle.reverseCurve!;
-    _animation = _controller;
-    _controller.stop();
+    final style = _effectiveAnimationStyle;
+    final targetValue = target ? 1.0 : 0.0;
+    final duration = target
+        ? (style.duration ?? Duration.zero)
+        : (style.reverseDuration ?? style.duration ?? Duration.zero);
+    final curve = target
+        ? (style.curve ?? Curves.linear)
+        : (style.reverseCurve ?? style.curve ?? Curves.linear);
 
+    _controller.stop();
     if (duration == Duration.zero) {
       _controller.value = targetValue;
       return;
     }
 
-    _controller.animateTo(
-      targetValue,
-      duration: duration,
-      curve: curve,
-    );
+    _controller.animateTo(targetValue, duration: duration, curve: curve);
   }
 
-  AnimationStyle get _effectiveAnimationStyle {
-    final style = widget.animationStyle;
-    if (style == null) return _defaultAnimationStyle;
-    return _defaultAnimationStyle.copyWith(
-      curve: style.curve,
-      duration: style.duration,
-      reverseCurve: style.reverseCurve,
-      reverseDuration: style.reverseDuration,
+  Widget _resolveChild(Widget? child, IconData? icon, Color? tint) {
+    if (child == null) {
+      return Icon(icon, size: widget.size, color: tint);
+    }
+
+    return IconTheme.merge(
+      data: IconThemeData(size: widget.size, color: tint),
+      child: child,
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final Color? baseColor = widget.baseTint;
-    final Color? wipedColor = widget.wipedTint ?? baseColor;
-
-    Widget wrapLayer(Widget child, Color? color) {
-      return Center(
-        child: IconTheme.merge(
-          data: IconThemeData(size: widget.size, color: color),
-          child: child,
-        ),
-      );
-    }
+    final baseColor = widget.baseTint;
+    final wipedColor = widget.wipedTint ?? baseColor;
 
     return DiagonalWipeTransition(
-      progress: _animation,
-      baseChild: widget._baseChild != null
-          ? wrapLayer(widget._baseChild!, baseColor)
-          : Icon(widget._baseIconData, size: widget.size, color: baseColor),
-      wipedChild: widget._wipedChild != null
-          ? wrapLayer(widget._wipedChild!, wipedColor)
-          : Icon(widget._wipedIconData, size: widget.size, color: wipedColor),
+      progress: _controller,
+      baseChild: _resolveChild(
+        widget._baseChild,
+        widget._baseIconData,
+        baseColor,
+      ),
+      wipedChild: _resolveChild(
+        widget._wipedChild,
+        widget._wipedIconData,
+        wipedColor,
+      ),
       semanticsLabel: widget.semanticsLabel,
       size: widget.size,
       direction: widget.direction,
@@ -210,154 +192,174 @@ class _AnimatedDiagonalWipeState extends State<AnimatedDiagonalWipe>
 
 /// Paints the wipe effect for an explicit [Animation] that drives progress from
 /// `0.0` to `1.0`.
-class DiagonalWipeTransition extends AnimatedWidget {
+class DiagonalWipeTransition extends StatefulWidget {
   const DiagonalWipeTransition({
     super.key,
-    required Animation<double> progress,
-    required Widget baseChild,
-    required Widget wipedChild,
+    required this.progress,
+    required this.baseChild,
+    required this.wipedChild,
     this.semanticsLabel,
     this.size = 24,
-    this.direction = WipeDirection.topLeftToBottomRight,
-    this.seamOverlapPx = 0.8,
-  })  : _progress = progress,
-        _baseChild = baseChild,
-        _wipedChild = wipedChild,
-        super(listenable: progress);
+    this.direction = _defaultWipeDirection,
+    this.seamOverlapPx = _defaultSeamOverlapPx,
+  }) : assert(seamOverlapPx >= 0);
 
-  final Animation<double> _progress;
+  final Animation<double> progress;
+  final Widget baseChild;
+  final Widget wipedChild;
   final String? semanticsLabel;
   final double size;
   final WipeDirection direction;
   final double seamOverlapPx;
-  final Widget _baseChild;
-  final Widget _wipedChild;
 
-  Animation<double> get progress => _progress;
+  @override
+  State<DiagonalWipeTransition> createState() =>
+      _DiagonalWipeTransitionState();
+}
 
-  Widget _buildLayer({
-    required bool base,
-  }) {
-    final Widget content = Center(child: base ? _baseChild : _wipedChild);
-    return SizedBox.square(
-      dimension: size,
-      child: ClipRect(child: content),
+enum _RenderMode { baseOnly, wiping, wipedOnly }
+
+class _DiagonalWipeTransitionState extends State<DiagonalWipeTransition> {
+  late _RenderMode _mode = _modeFor(widget.progress.value);
+
+  _RenderMode _modeFor(double value) {
+    final t = value.clamp(0.0, 1.0).toDouble();
+    if (t <= _eps) return _RenderMode.baseOnly;
+    if (t >= 1 - _eps) return _RenderMode.wipedOnly;
+    return _RenderMode.wiping;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    widget.progress.addListener(_handleProgressChanged);
+  }
+
+  @override
+  void didUpdateWidget(covariant DiagonalWipeTransition oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.progress != widget.progress) {
+      oldWidget.progress.removeListener(_handleProgressChanged);
+      widget.progress.addListener(_handleProgressChanged);
+    }
+
+    _mode = _modeFor(widget.progress.value);
+  }
+
+  @override
+  void dispose() {
+    widget.progress.removeListener(_handleProgressChanged);
+    super.dispose();
+  }
+
+  void _handleProgressChanged() {
+    final nextMode = _modeFor(widget.progress.value);
+    if (nextMode == _mode || !mounted) return;
+    setState(() => _mode = nextMode);
+  }
+
+  Widget _frame(Widget child) {
+    return ClipRect(
+      child: SizedBox.expand(
+        child: Center(child: child),
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final double clampedProgress = progress.value.clamp(0.0, 1.0);
-
-    final Widget staticResult = _buildLayer(base: true);
-    final Widget finalResult = _buildLayer(base: false);
-
-    final Widget result;
-    if (clampedProgress <= 0.001) {
-      result = staticResult;
-    } else if (clampedProgress >= 0.999) {
-      result = finalResult;
-    } else {
-      result = LayoutBuilder(
-        builder: (context, constraints) {
-          final double width =
-              constraints.maxWidth.isFinite ? constraints.maxWidth : size;
-          final double height =
-              constraints.maxHeight.isFinite ? constraints.maxHeight : size;
-          if (width <= 0 || height <= 0) return staticResult;
-
-          final double travelDistance = wipeTravelDistance(
-            width,
-            height,
-            direction,
-          );
-          final double adjustedProgress =
-              (clampedProgress * travelDistance + seamOverlapPx) /
-                  travelDistance;
-
-          final Path reveal = buildWipeRevealPath(
-            width: width,
-            height: height,
-            progress: adjustedProgress.clamp(0.0, 1.0),
-            direction: direction,
-          );
-          final Path baseClip = Path()
-            ..fillType = PathFillType.evenOdd
-            ..addRect(Rect.fromLTWH(0, 0, width, height))
-            ..addPath(reveal, Offset.zero);
-
-          return Stack(
-            fit: StackFit.expand,
-            children: [
-              ClipPath(
-                clipper: _StaticWipeClipper(baseClip),
-                child: staticResult,
+    final content = switch (_mode) {
+      _RenderMode.baseOnly => _frame(widget.baseChild),
+      _RenderMode.wipedOnly => _frame(widget.wipedChild),
+      _RenderMode.wiping => Stack(
+          fit: StackFit.expand,
+          children: [
+            ClipPath(
+              clipper: _WipeClipper(
+                progress: widget.progress,
+                direction: widget.direction,
+                seamOverlapPx: widget.seamOverlapPx,
+                inverse: true,
               ),
-              ClipPath(
-                clipper: _StaticWipeClipper(reveal),
-                child: finalResult,
+              child: _frame(widget.baseChild),
+            ),
+            ClipPath(
+              clipper: _WipeClipper(
+                progress: widget.progress,
+                direction: widget.direction,
+                seamOverlapPx: widget.seamOverlapPx,
               ),
-            ],
-          );
-        },
-      );
-    }
+              child: _frame(widget.wipedChild),
+            ),
+          ],
+        ),
+    };
 
-    final Widget sizedResult = SizedBox(
-      width: size,
-      height: size,
-      child: result,
+    final boxed = SizedBox.square(
+      dimension: widget.size,
+      child: content,
     );
 
-    if (semanticsLabel == null) return sizedResult;
-    return Semantics(label: semanticsLabel, image: true, child: sizedResult);
+    return widget.semanticsLabel == null
+        ? boxed
+        : Semantics(label: widget.semanticsLabel, image: true, child: boxed);
   }
 }
 
-/// The direction in which the wipe boundary travels across the icon bounds.
+/// The direction in which the wipe boundary travels across the widget bounds.
 enum WipeDirection {
-  topLeftToBottomRight,
-  bottomRightToTopLeft,
-  topRightToBottomLeft,
-  bottomLeftToTopRight,
-  topToBottom,
-  bottomToTop,
-  leftToRight,
-  rightToLeft,
+  topLeftToBottomRight(Offset(1, 1)),
+  bottomRightToTopLeft(Offset(-1, -1)),
+  topRightToBottomLeft(Offset(-1, 1)),
+  bottomLeftToTopRight(Offset(1, -1)),
+  topToBottom(Offset(0, 1)),
+  bottomToTop(Offset(0, -1)),
+  leftToRight(Offset(1, 0)),
+  rightToLeft(Offset(-1, 0));
+
+  const WipeDirection(this.axis);
+  final Offset axis;
 }
 
-class _StaticWipeClipper extends CustomClipper<Path> {
-  _StaticWipeClipper(this._path);
+class _WipeClipper extends CustomClipper<Path> {
+  _WipeClipper({
+    required this.progress,
+    required this.direction,
+    required this.seamOverlapPx,
+    this.inverse = false,
+  }) : super(reclip: progress);
 
-  final Path _path;
+  final Animation<double> progress;
+  final WipeDirection direction;
+  final double seamOverlapPx;
+  final bool inverse;
 
   @override
-  Path getClip(Size size) => _path;
+  Path getClip(Size size) {
+    final t = progress.value.clamp(0.0, 1.0).toDouble();
+    final overlap = (t > 0 && t < 1) ? seamOverlapPx : 0.0;
+    final reveal = buildWipeRevealPath(
+      width: size.width,
+      height: size.height,
+      progress: t,
+      direction: direction,
+      seamOverlapPx: overlap,
+    );
 
-  @override
-  bool shouldReclip(covariant _StaticWipeClipper oldClipper) {
-    return oldClipper._path != _path;
+    if (!inverse) return reveal;
+
+    return Path()
+      ..fillType = PathFillType.evenOdd
+      ..addRect(Offset.zero & size)
+      ..addPath(reveal, Offset.zero);
   }
-}
 
-Offset _wipeAxis(WipeDirection direction) {
-  switch (direction) {
-    case WipeDirection.topLeftToBottomRight:
-      return const Offset(1, 1);
-    case WipeDirection.bottomRightToTopLeft:
-      return const Offset(-1, -1);
-    case WipeDirection.topRightToBottomLeft:
-      return const Offset(-1, 1);
-    case WipeDirection.bottomLeftToTopRight:
-      return const Offset(1, -1);
-    case WipeDirection.topToBottom:
-      return const Offset(0, 1);
-    case WipeDirection.bottomToTop:
-      return const Offset(0, -1);
-    case WipeDirection.leftToRight:
-      return const Offset(1, 0);
-    case WipeDirection.rightToLeft:
-      return const Offset(-1, 0);
+  @override
+  bool shouldReclip(covariant _WipeClipper oldClipper) {
+    return oldClipper.progress != progress ||
+        oldClipper.direction != direction ||
+        oldClipper.seamOverlapPx != seamOverlapPx ||
+        oldClipper.inverse != inverse;
   }
 }
 
@@ -367,149 +369,37 @@ double wipeTravelDistance(
   double height,
   WipeDirection direction,
 ) {
-  final axis = _wipeAxis(direction);
-  final values = [
-    0.0,
-    axis.dx * width,
-    axis.dx * width + axis.dy * height,
-    axis.dy * height,
-  ];
-  final minValue = values.reduce(math.min);
-  final maxValue = values.reduce(math.max);
-  return (maxValue - minValue).abs().clamp(1.0, double.infinity);
+  if (width <= 0 || height <= 0) return 1.0;
+  final range = _projectionRange(Size(width, height), direction.axis);
+  final distance = (range.max - range.min).abs();
+  return distance < 1.0 ? 1.0 : distance;
 }
 
-double _boundaryThreshold(
-  double width,
-  double height,
-  double progress,
-  Offset axis,
-) {
-  final values = [
-    0.0,
-    axis.dx * width,
-    axis.dx * width + axis.dy * height,
-    axis.dy * height,
-  ];
-  final minValue = values.reduce(math.min);
-  final maxValue = values.reduce(math.max);
-  return minValue + (maxValue - minValue) * progress;
-}
-
-List<Offset> _clipRectangleWithHalfPlane({
-  required double width,
-  required double height,
-  required Offset axis,
-  required double threshold,
-}) {
-  const double eps = 0.0001;
-
-  final inPoints = [
-    const Offset(0, 0),
-    Offset(width, 0),
-    Offset(width, height),
-    Offset(0, height),
-  ];
-  final outPoints = <Offset>[];
-
-  void addOutputPoint(double x, double y) {
-    if (outPoints.isNotEmpty) {
-      final last = outPoints.last;
-      final dx = last.dx - x;
-      final dy = last.dy - y;
-      if ((dx * dx + dy * dy) < 1e-4) return;
-    }
-    outPoints.add(Offset(x, y));
-  }
-
-  double prevX = inPoints[3].dx;
-  double prevY = inPoints[3].dy;
-  double prevValue = axis.dx * prevX + axis.dy * prevY - threshold;
-  bool prevInside = prevValue <= eps;
-
-  for (int i = 0; i < inPoints.length; i++) {
-    final currentX = inPoints[i].dx;
-    final currentY = inPoints[i].dy;
-    final double currentValue =
-        axis.dx * currentX + axis.dy * currentY - threshold;
-    final bool currentInside = currentValue <= eps;
-
-    if (prevInside && currentInside) {
-      addOutputPoint(currentX, currentY);
-    } else if (prevInside && !currentInside) {
-      final denominator = prevValue - currentValue;
-      if (denominator.abs() >= eps) {
-        final t = (prevValue / denominator).clamp(0.0, 1.0);
-        addOutputPoint(
-          prevX + (currentX - prevX) * t,
-          prevY + (currentY - prevY) * t,
-        );
-      }
-    } else if (!prevInside && currentInside) {
-      final denominator = prevValue - currentValue;
-      if (denominator.abs() >= eps) {
-        final t = (prevValue / denominator).clamp(0.0, 1.0);
-        addOutputPoint(
-          prevX + (currentX - prevX) * t,
-          prevY + (currentY - prevY) * t,
-        );
-      }
-      addOutputPoint(currentX, currentY);
-    }
-
-    prevX = currentX;
-    prevY = currentY;
-    prevValue = currentValue;
-    prevInside = currentInside;
-  }
-
-  if (outPoints.length > 1) {
-    final first = outPoints.first;
-    final last = outPoints.last;
-    final dx = first.dx - last.dx;
-    final dy = first.dy - last.dy;
-    if ((dx * dx + dy * dy) < 1e-4) {
-      outPoints.removeLast();
-    }
-  }
-
-  return outPoints;
-}
-
-/// Builds the clipping path that reveals the destination icon for [progress].
+/// Builds the clipping path that reveals the destination widget for [progress].
 Path buildWipeRevealPath({
   required double width,
   required double height,
   required double progress,
   required WipeDirection direction,
+  double seamOverlapPx = 0,
 }) {
-  final Path path = Path();
-  final p = progress.clamp(0.0, 1.0);
-  if (p <= 0.0) {
-    return path;
-  }
-  if (p >= 1.0) {
+  final path = Path();
+  if (width <= 0 || height <= 0) return path;
+
+  final t = progress.clamp(0.0, 1.0).toDouble();
+  if (t <= 0) return path;
+  if (t >= 1) {
     path.addRect(Rect.fromLTWH(0, 0, width, height));
     return path;
   }
 
-  final axis = _wipeAxis(direction);
-  final threshold = _boundaryThreshold(width, height, p, axis);
-  final points = _clipRectangleWithHalfPlane(
-    width: width,
-    height: height,
-    axis: axis,
-    threshold: threshold,
-  );
-  if (points.isEmpty) {
-    return path;
+  final size = Size(width, height);
+  final range = _projectionRange(size, direction.axis);
+  final threshold = range.min + (range.max - range.min) * t + seamOverlapPx;
+  final points = _clipRectWithHalfPlane(size, direction.axis, threshold);
+  if (points.isNotEmpty) {
+    path.addPolygon(points, true);
   }
-
-  path.moveTo(points[0].dx, points[0].dy);
-  for (int i = 1; i < points.length; i++) {
-    path.lineTo(points[i].dx, points[i].dy);
-  }
-  path.close();
   return path;
 }
 
@@ -522,60 +412,131 @@ Path buildWipeRevealPath({
   required double progress,
   required WipeDirection direction,
 }) {
-  final p = progress.clamp(0.0, 1.0);
-  if (p <= 0 || p >= 1) return null;
+  if (width <= 0 || height <= 0) return null;
 
-  final axis = _wipeAxis(direction);
-  final threshold = _boundaryThreshold(width, height, p, axis);
+  final t = progress.clamp(0.0, 1.0).toDouble();
+  if (t <= 0 || t >= 1) return null;
 
-  final candidates = <Offset>[];
-  const double eps = 0.0001;
+  final axis = direction.axis;
+  final range = _projectionRange(Size(width, height), axis);
+  final threshold = range.min + (range.max - range.min) * t;
+  final candidates = <Offset>[
+    if (axis.dy.abs() > _eps) Offset(0, threshold / axis.dy),
+    if (axis.dy.abs() > _eps)
+      Offset(width, (threshold - axis.dx * width) / axis.dy),
+    if (axis.dx.abs() > _eps) Offset(threshold / axis.dx, 0),
+    if (axis.dx.abs() > _eps)
+      Offset((threshold - axis.dy * height) / axis.dx, height),
+  ];
 
-  if (axis.dy.abs() > eps) {
-    candidates.add(Offset(0, threshold / axis.dy));
-    candidates.add(Offset(width, (threshold - axis.dx * width) / axis.dy));
-  }
-  if (axis.dx.abs() > eps) {
-    candidates.add(Offset(threshold / axis.dx, 0));
-    candidates.add(Offset((threshold - axis.dy * height) / axis.dx, height));
-  }
-
-  final filtered = <Offset>[];
-  for (final c in candidates) {
-    if (c.dx < -eps ||
-        c.dx > width + eps ||
-        c.dy < -eps ||
-        c.dy > height + eps) {
+  final points = <Offset>[];
+  for (final point in candidates) {
+    if (point.dx < -_eps ||
+        point.dx > width + _eps ||
+        point.dy < -_eps ||
+        point.dy > height + _eps) {
       continue;
     }
-    if (filtered.every((v) {
-      final dx = v.dx - c.dx;
-      final dy = v.dy - c.dy;
-      return dx * dx + dy * dy >= 1e-6;
-    })) {
-      filtered.add(c);
+    if (points.every((other) => !_samePoint(other, point))) {
+      points.add(point);
     }
   }
 
-  if (filtered.length < 2) return null;
+  if (points.length < 2) return null;
+  if (points.length == 2) return (start: points[0], end: points[1]);
 
-  Offset start = filtered.first;
-  Offset end = filtered[1];
-  if (filtered.length > 2) {
-    double maxDist = -1;
-    for (int i = 0; i < filtered.length; i++) {
-      for (int j = i + 1; j < filtered.length; j++) {
-        final dx = filtered[i].dx - filtered[j].dx;
-        final dy = filtered[i].dy - filtered[j].dy;
-        final d2 = dx * dx + dy * dy;
-        if (d2 > maxDist) {
-          maxDist = d2;
-          start = filtered[i];
-          end = filtered[j];
-        }
+  var start = points[0];
+  var end = points[1];
+  var maxDistanceSquared = -1.0;
+
+  for (var i = 0; i < points.length; i++) {
+    for (var j = i + 1; j < points.length; j++) {
+      final dx = points[i].dx - points[j].dx;
+      final dy = points[i].dy - points[j].dy;
+      final distanceSquared = dx * dx + dy * dy;
+      if (distanceSquared > maxDistanceSquared) {
+        maxDistanceSquared = distanceSquared;
+        start = points[i];
+        end = points[j];
       }
     }
   }
 
   return (start: start, end: end);
+}
+
+List<Offset> _rectCorners(Size size) => <Offset>[
+      Offset.zero,
+      Offset(size.width, 0),
+      Offset(size.width, size.height),
+      Offset(0, size.height),
+    ];
+
+({double min, double max}) _projectionRange(Size size, Offset axis) {
+  var minValue = double.infinity;
+  var maxValue = double.negativeInfinity;
+
+  for (final corner in _rectCorners(size)) {
+    final value = _project(corner, axis);
+    if (value < minValue) minValue = value;
+    if (value > maxValue) maxValue = value;
+  }
+
+  return (min: minValue, max: maxValue);
+}
+
+List<Offset> _clipRectWithHalfPlane(Size size, Offset axis, double threshold) {
+  final input = _rectCorners(size);
+  final output = <Offset>[];
+
+  void addPoint(Offset point) {
+    if (output.isEmpty || !_samePoint(output.last, point)) {
+      output.add(point);
+    }
+  }
+
+  var previous = input.last;
+  var previousValue = _project(previous, axis) - threshold;
+  var previousInside = previousValue <= _eps;
+
+  for (final current in input) {
+    final currentValue = _project(current, axis) - threshold;
+    final currentInside = currentValue <= _eps;
+
+    if (previousInside != currentInside) {
+      final denominator = previousValue - currentValue;
+      if (denominator.abs() > _eps) {
+        final t = (previousValue / denominator).clamp(0.0, 1.0).toDouble();
+        addPoint(_lerp(previous, current, t));
+      }
+    }
+
+    if (currentInside) {
+      addPoint(current);
+    }
+
+    previous = current;
+    previousValue = currentValue;
+    previousInside = currentInside;
+  }
+
+  if (output.length > 1 && _samePoint(output.first, output.last)) {
+    output.removeLast();
+  }
+
+  return output;
+}
+
+double _project(Offset point, Offset axis) =>
+    point.dx * axis.dx + point.dy * axis.dy;
+
+Offset _lerp(Offset a, Offset b, double t) => Offset(
+      a.dx + (b.dx - a.dx) * t,
+      a.dy + (b.dy - a.dy) * t,
+    );
+
+bool _samePoint(Offset a, Offset b) {
+  final dx = a.dx - b.dx;
+  final dy = a.dy - b.dy;
+  return dx * dx + dy * dy < 1e-6;
 }
