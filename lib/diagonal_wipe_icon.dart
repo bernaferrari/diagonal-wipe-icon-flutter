@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
-const WipeDirection _defaultWipeDirection =
-    WipeDirection.topLeftToBottomRight;
+const WipeDirection _defaultWipeDirection = WipeDirection.topLeftToBottomRight;
 const double _defaultSeamOverlapPx = 0.8;
 const AnimationStyle _defaultAnimationStyle = AnimationStyle(
   duration: Duration(milliseconds: 530),
@@ -43,6 +42,11 @@ class AnimatedDiagonalWipe extends StatefulWidget {
   ///
   /// Use [animationStyle] to customize the timing and easing of the implicit
   /// animation.
+  ///
+  /// [reverseDirection] is interpreted as the visual direction of the reverse
+  /// wipe. Because the reverse pass drives [progress] from `1.0` to `0.0`,
+  /// the clip path internally mirrors that progress so the on-screen motion
+  /// still matches the requested direction.
   const AnimatedDiagonalWipe.icon({
     super.key,
     required this.isWiped,
@@ -69,6 +73,10 @@ class AnimatedDiagonalWipe extends StatefulWidget {
   final double size;
   final AnimationStyle? animationStyle;
   final WipeDirection direction;
+
+  /// Visual direction to use while animating from wiped back to base.
+  ///
+  /// When omitted, the reverse pass starts from the same side as [direction].
   final WipeDirection? reverseDirection;
   final double seamOverlapPx;
 
@@ -215,20 +223,22 @@ class DiagonalWipeTransition extends StatefulWidget {
   final String? semanticsLabel;
   final double size;
   final WipeDirection direction;
+
+  /// Visual direction to use while animating from wiped back to base.
+  ///
+  /// When omitted, the reverse pass starts from the same side as [direction].
   final WipeDirection? reverseDirection;
   final double seamOverlapPx;
 
   @override
-  State<DiagonalWipeTransition> createState() =>
-      _DiagonalWipeTransitionState();
+  State<DiagonalWipeTransition> createState() => _DiagonalWipeTransitionState();
 }
 
 enum _RenderMode { baseOnly, wiping, wipedOnly }
 
 class _DiagonalWipeTransitionState extends State<DiagonalWipeTransition> {
-  late _RenderMode _mode = _modeFor(widget.progress.value);
-  late double _lastProgressValue =
-      widget.progress.value.clamp(0.0, 1.0).toDouble();
+  late _RenderMode _mode;
+  late double _lastProgressValue;
   bool _isReversing = false;
 
   _RenderMode _modeFor(double value) {
@@ -241,6 +251,8 @@ class _DiagonalWipeTransitionState extends State<DiagonalWipeTransition> {
   @override
   void initState() {
     super.initState();
+    _lastProgressValue = widget.progress.value.clamp(0.0, 1.0).toDouble();
+    _mode = _modeFor(_lastProgressValue);
     widget.progress.addListener(_handleProgressChanged);
   }
 
@@ -281,9 +293,11 @@ class _DiagonalWipeTransitionState extends State<DiagonalWipeTransition> {
     });
   }
 
-  WipeDirection get _activeDirection => _isReversing
-      ? (widget.reverseDirection ?? widget.direction.opposite)
-      : widget.direction;
+  WipeDirection get _activeDirection {
+    if (!_isReversing) return widget.direction;
+
+    return widget.reverseDirection ?? widget.direction;
+  }
 
   Widget _layer({
     required Widget child,
@@ -294,6 +308,7 @@ class _DiagonalWipeTransitionState extends State<DiagonalWipeTransition> {
         progress: widget.progress,
         direction: _activeDirection,
         seamOverlapPx: widget.seamOverlapPx,
+        reverseProgress: _isReversing,
         inverse: inverse,
       ),
       child: _frame(child),
@@ -310,14 +325,15 @@ class _DiagonalWipeTransitionState extends State<DiagonalWipeTransition> {
 
   @override
   Widget build(BuildContext context) {
+    final baseInverse = !_isReversing;
     final content = switch (_mode) {
       _RenderMode.baseOnly => _frame(widget.baseChild),
       _RenderMode.wipedOnly => _frame(widget.wipedChild),
       _RenderMode.wiping => Stack(
           fit: StackFit.expand,
           children: [
-            _layer(child: widget.baseChild, inverse: true),
-            _layer(child: widget.wipedChild, inverse: false),
+            _layer(child: widget.baseChild, inverse: baseInverse),
+            _layer(child: widget.wipedChild, inverse: !baseInverse),
           ],
         ),
     };
@@ -368,17 +384,20 @@ class _WipeClipper extends CustomClipper<Path> {
     required this.progress,
     required this.direction,
     required this.seamOverlapPx,
+    this.reverseProgress = false,
     this.inverse = false,
   }) : super(reclip: progress);
 
   final Animation<double> progress;
   final WipeDirection direction;
   final double seamOverlapPx;
+  final bool reverseProgress;
   final bool inverse;
 
   @override
   Path getClip(Size size) {
-    final t = progress.value.clamp(0.0, 1.0).toDouble();
+    final rawT = progress.value.clamp(0.0, 1.0).toDouble();
+    final t = reverseProgress ? (1.0 - rawT) : rawT;
     final overlap = (t > 0 && t < 1) ? seamOverlapPx : 0.0;
     final reveal = buildWipeRevealPath(
       width: size.width,
@@ -401,6 +420,7 @@ class _WipeClipper extends CustomClipper<Path> {
     return oldClipper.progress != progress ||
         oldClipper.direction != direction ||
         oldClipper.seamOverlapPx != seamOverlapPx ||
+        oldClipper.reverseProgress != reverseProgress ||
         oldClipper.inverse != inverse;
   }
 }

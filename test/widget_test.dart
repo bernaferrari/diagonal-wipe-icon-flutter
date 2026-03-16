@@ -233,6 +233,42 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  testWidgets('reverseDirection matches the requested visual reverse motion', (
+    WidgetTester tester,
+  ) async {
+    final controller = AnimationController(vsync: tester, value: 1);
+    addTearDown(controller.dispose);
+
+    await tester.pumpWidget(
+      buildHost(
+        DiagonalWipeTransition(
+          progress: controller,
+          size: 24,
+          direction: WipeDirection.topLeftToBottomRight,
+          reverseDirection: WipeDirection.topRightToBottomLeft,
+          baseChild: const Icon(Icons.check),
+          wipedChild: const Icon(Icons.close),
+        ),
+      ),
+    );
+
+    controller.value = 0.75;
+    await tester.pump();
+
+    final ClipPath baseClipPath = tester.widget<ClipPath>(
+      find.ancestor(
+        of: find.byIcon(Icons.check),
+        matching: find.byType(ClipPath),
+      ),
+    );
+
+    final Path basePath = baseClipPath.clipper!.getClip(
+      const Size.square(24),
+    );
+    expect(basePath.contains(const Offset(22, 2)), isTrue);
+    expect(basePath.contains(const Offset(2, 22)), isFalse);
+  });
+
   testWidgets('transition constructor preserves child styling', (
     WidgetTester tester,
   ) async {

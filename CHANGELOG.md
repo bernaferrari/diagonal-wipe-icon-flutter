@@ -1,7 +1,7 @@
-## 0.2.0
+## 0.2.1
 
 - Adds `reverseDirection` to `AnimatedDiagonalWipe` and `DiagonalWipeTransition`.
-- Reverse wipes now default to `direction.opposite`, so the outgoing pass can begin from the same visual edge as the incoming pass.
+- Reverse wipes now treat `reverseDirection` as the visual reverse motion. When omitted, it defaults to `direction`.
 - Keeps `reverseDirection` optional so callers can preserve or customize reverse motion explicitly.
 
 ## 0.1.1
