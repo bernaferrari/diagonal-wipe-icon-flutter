@@ -269,6 +269,41 @@ void main() {
     expect(basePath.contains(const Offset(2, 22)), isFalse);
   });
 
+  testWidgets('reverseDirection defaults to direction.opposite', (
+    WidgetTester tester,
+  ) async {
+    final controller = AnimationController(vsync: tester, value: 1);
+    addTearDown(controller.dispose);
+
+    await tester.pumpWidget(
+      buildHost(
+        DiagonalWipeTransition(
+          progress: controller,
+          size: 24,
+          direction: WipeDirection.topLeftToBottomRight,
+          baseChild: const Icon(Icons.check),
+          wipedChild: const Icon(Icons.close),
+        ),
+      ),
+    );
+
+    controller.value = 0.75;
+    await tester.pump();
+
+    final ClipPath baseClipPath = tester.widget<ClipPath>(
+      find.ancestor(
+        of: find.byIcon(Icons.check),
+        matching: find.byType(ClipPath),
+      ),
+    );
+
+    final Path basePath = baseClipPath.clipper!.getClip(
+      const Size.square(24),
+    );
+    expect(basePath.contains(const Offset(22, 22)), isTrue);
+    expect(basePath.contains(const Offset(2, 2)), isFalse);
+  });
+
   testWidgets('transition constructor preserves child styling', (
     WidgetTester tester,
   ) async {

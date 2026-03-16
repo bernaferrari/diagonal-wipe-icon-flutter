@@ -76,7 +76,8 @@ class AnimatedDiagonalWipe extends StatefulWidget {
 
   /// Visual direction to use while animating from wiped back to base.
   ///
-  /// When omitted, the reverse pass starts from the same side as [direction].
+  /// When omitted, the reverse pass starts from the opposite side of
+  /// [direction].
   final WipeDirection? reverseDirection;
   final double seamOverlapPx;
 
@@ -226,7 +227,8 @@ class DiagonalWipeTransition extends StatefulWidget {
 
   /// Visual direction to use while animating from wiped back to base.
   ///
-  /// When omitted, the reverse pass starts from the same side as [direction].
+  /// When omitted, the reverse pass starts from the opposite side of
+  /// [direction].
   final WipeDirection? reverseDirection;
   final double seamOverlapPx;
 
@@ -296,7 +298,7 @@ class _DiagonalWipeTransitionState extends State<DiagonalWipeTransition> {
   WipeDirection get _activeDirection {
     if (!_isReversing) return widget.direction;
 
-    return widget.reverseDirection ?? widget.direction;
+    return widget.reverseDirection ?? widget.direction.opposite;
   }
 
   Widget _layer({

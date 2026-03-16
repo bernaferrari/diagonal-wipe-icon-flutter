@@ -39,7 +39,7 @@ flutter pub add diagonal_wipe_icon
 Or add it manually to your `pubspec.yaml`:
 ```yaml
 dependencies:
-  diagonal_wipe_icon: ^0.2.0
+  diagonal_wipe_icon: ^0.2.1
 ```
 
 Then, use it anywhere you would typically place an `Icon`, such as inside an `IconButton` or a `GestureDetector`:
@@ -75,7 +75,7 @@ IconButton(
 | `baseTint` / `wipedTint` | Optional colors. Inherits from `IconTheme` if null. |
 | `size` | Optional size. Inherits from `IconTheme` if null. |
 | `direction` | Forward wipe direction. Defaults to `topLeftToBottomRight`. |
-| `reverseDirection` | Optional visual reverse wipe direction. Defaults to `direction`. |
+| `reverseDirection` | Optional visual reverse wipe direction. Defaults to `direction.opposite`. |
 | `animationStyle` | Timing constraints, curves, or disables animation entirely. |
 
 ## 🎨 Customization
@@ -102,7 +102,7 @@ AnimatedDiagonalWipe.icon(
 )
 ```
 
-If you omit `reverseDirection`, the reverse pass uses the same visual direction as `direction`. Internally the clip path mirrors reverse progress (`1.0` to `0.0`) so the wipe-in and wipe-out can still begin from the same visual side.
+If you omit `reverseDirection`, the reverse pass uses `direction.opposite`. Internally the clip path mirrors reverse progress (`1.0` to `0.0`) so explicit reverse values still match the visual direction you choose.
 
 ```dart
 AnimatedDiagonalWipe.icon(
@@ -110,7 +110,7 @@ AnimatedDiagonalWipe.icon(
   baseIcon: Icons.visibility,
   wipedIcon: Icons.visibility_off,
   direction: WipeDirection.topLeftToBottomRight,
-  // Defaults to WipeDirection.topLeftToBottomRight on the reverse pass.
+  // Defaults to WipeDirection.bottomRightToTopLeft on the reverse pass.
 )
 ```
 
