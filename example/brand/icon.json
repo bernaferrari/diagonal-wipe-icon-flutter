@@ -1,0 +1,10 @@
+{
+  "files": [
+    {"path": "example/web/favicon.svg", "shape": "rounded", "scale": 1.25},
+    {"path": "example/web/favicon.png", "size": 64, "shape": "rounded", "scale": 1.25},
+    {"path": "example/web/icons/Icon-192.png", "size": 192, "shape": "rounded", "scale": 1.25},
+    {"path": "example/web/icons/Icon-512.png", "size": 512, "shape": "rounded", "scale": 1.25},
+    {"path": "example/web/icons/Icon-maskable-192.png", "size": 192, "shape": "square", "opaque": true},
+    {"path": "example/web/icons/Icon-maskable-512.png", "size": 512, "shape": "square", "opaque": true}
+  ]
+}
