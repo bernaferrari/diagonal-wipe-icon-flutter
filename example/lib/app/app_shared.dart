@@ -1,6 +1,6 @@
 import 'dart:math' as math;
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter/physics.dart';
 
 import '../demo_catalog.dart';
@@ -21,8 +21,10 @@ Future<void> animateScaleWithSpring(
   double stiffness = 200,
   double dampingRatio = 0.5,
 }) {
-  final clampedTarget =
-      target.clamp(controller.lowerBound, controller.upperBound);
+  final clampedTarget = target.clamp(
+    controller.lowerBound,
+    controller.upperBound,
+  );
   if (clampedTarget == controller.value) {
     return Future.value();
   }

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 import 'material_symbol_assets.dart';
 import 'material_symbol_name.dart';
@@ -33,12 +33,8 @@ class MaterialSymbolWipeIcon extends WipeIconSource {
 
   @override
   SizedIconBuilder get builder => (size, color) {
-        return Icon(
-          symbolName.iconData,
-          size: size,
-          color: color,
-        );
-      };
+    return Icon(symbolName.iconData, size: size, color: color);
+  };
 
   @override
   bool operator ==(Object other) {
@@ -62,12 +58,8 @@ class IconDataWipeIcon extends WipeIconSource {
 
   @override
   SizedIconBuilder get builder => (size, color) {
-        return Icon(
-          iconData,
-          size: size,
-          color: color,
-        );
-      };
+    return Icon(iconData, size: size, color: color);
+  };
 
   @override
   bool operator ==(Object other) {

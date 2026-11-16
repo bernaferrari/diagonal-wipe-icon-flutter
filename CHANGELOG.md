@@ -1,3 +1,9 @@
+## 0.3.0
+
+- Require Flutter 3.50+ and Dart 3.14+ (`sdk: ^3.14.0`, `flutter: '>=3.50.0'`).
+- Migrate library imports to pure `package:flutter/widgets.dart` (removing `flutter/material.dart` from the library surface) and use Dart private named initializing formals.
+- Migrate `test/` and `example/` to standalone `package:material_ui/material_ui.dart` (`^1.11.0`), `flutter_lints` `^6.0.0`, and Flutter 3.50 Wasm compatibility.
+
 ## 0.2.1
 
 - Adds `reverseDirection` to `AnimatedDiagonalWipe` and `DiagonalWipeTransition`.

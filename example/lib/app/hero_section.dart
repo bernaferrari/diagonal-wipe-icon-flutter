@@ -1,7 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:diagonal_wipe_icon/diagonal_wipe_icon.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 import '../demo_catalog.dart';
 import 'app_shared.dart';
@@ -62,9 +62,7 @@ class HeroSection extends StatelessWidget {
               ),
             ),
           ),
-          Positioned.fill(
-            child: _AnimatedHeroOrbs(accentColor: accentColor),
-          ),
+          Positioned.fill(child: _AnimatedHeroOrbs(accentColor: accentColor)),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 32),
             child: Align(
@@ -77,9 +75,7 @@ class HeroSection extends StatelessWidget {
                     children: [
                       Text(
                         'Diagonal Wipe Icons',
-                        style: Theme.of(context)
-                            .textTheme
-                            .displaySmall
+                        style: Theme.of(context).textTheme.displaySmall
                             ?.copyWith(
                               fontWeight: FontWeight.w800,
                               letterSpacing: -1,
@@ -90,13 +86,13 @@ class HeroSection extends StatelessWidget {
                       const SizedBox(height: 8),
                       Text(
                         'Elegant morphing transitions for icons in Flutter',
-                        style:
-                            Theme.of(context).textTheme.titleMedium?.copyWith(
-                                  fontWeight: FontWeight.w500,
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .onSurfaceVariant,
-                                ),
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(
+                              fontWeight: FontWeight.w500,
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onSurfaceVariant,
+                            ),
                         textAlign: TextAlign.center,
                       ),
                     ],
@@ -140,7 +136,7 @@ class _AnimatedHeroOrbs extends StatelessWidget {
     return RepeatingAnimationBuilder<double>(
       duration: const Duration(milliseconds: 25000),
       animatable: Tween<double>(begin: 0, end: 1),
-      builder: (_, orbitProgress, __) {
+      builder: (_, orbitProgress, _) {
         return CustomPaint(
           painter: _HeroOrbsPainter(
             accentColor: accentColor,
@@ -177,19 +173,15 @@ class _HowItWorksButton extends StatelessWidget {
       ),
       child: Text(
         label,
-        style: Theme.of(context).textTheme.labelLarge?.copyWith(
-              fontWeight: FontWeight.w600,
-            ),
+        style: Theme.of(context).textTheme.labelLarge
+            ?.copyWith(fontWeight: FontWeight.w600),
       ),
     );
   }
 }
 
 class _HeroOrbsPainter extends CustomPainter {
-  const _HeroOrbsPainter({
-    required this.accentColor,
-    required this.orbitPhase,
-  });
+  const _HeroOrbsPainter({required this.accentColor, required this.orbitPhase});
 
   final Color accentColor;
   final double orbitPhase;
@@ -197,20 +189,18 @@ class _HeroOrbsPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..shader = RadialGradient(
-        colors: [
-          accentColor.withValues(alpha: 0.06),
-          Colors.transparent,
-        ],
-      ).createShader(
-        Rect.fromCircle(
-          center: Offset(
-            size.width / 2 + math.cos(orbitPhase) * 120,
-            size.height / 2 + math.sin(orbitPhase) * 80,
-          ),
-          radius: 250,
-        ),
-      );
+      ..shader =
+          RadialGradient(
+            colors: [accentColor.withValues(alpha: 0.06), Colors.transparent],
+          ).createShader(
+            Rect.fromCircle(
+              center: Offset(
+                size.width / 2 + math.cos(orbitPhase) * 120,
+                size.height / 2 + math.sin(orbitPhase) * 80,
+              ),
+              radius: 250,
+            ),
+          );
     canvas.drawCircle(
       Offset(
         size.width / 2 + math.cos(orbitPhase) * 120,
@@ -243,10 +233,7 @@ class _HeroMeshBackgroundPainter extends CustomPainter {
       Offset.zero & size,
       Paint()
         ..shader = RadialGradient(
-          colors: [
-            seedColor.withValues(alpha: 0.025),
-            Colors.transparent,
-          ],
+          colors: [seedColor.withValues(alpha: 0.025), Colors.transparent],
           center: Alignment.center,
           radius: 0.7,
         ).createShader(Offset.zero & size),
@@ -279,27 +266,34 @@ class HeroIconShowcase extends StatelessWidget {
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        final maxVisibleIcons = ((constraints.maxWidth + heroIconSpacing) /
-                (heroIconSize + heroIconSpacing))
-            .toInt()
-            .clamp(1, pairs.length);
-        final startIndex = ((pairs.length - maxVisibleIcons) / 2)
-            .floor()
-            .clamp(0, pairs.length - maxVisibleIcons);
-        final visiblePairs =
-            pairs.sublist(startIndex, startIndex + maxVisibleIcons);
+        final maxVisibleIcons =
+            ((constraints.maxWidth + heroIconSpacing) /
+                    (heroIconSize + heroIconSpacing))
+                .toInt()
+                .clamp(1, pairs.length);
+        final startIndex = ((pairs.length - maxVisibleIcons) / 2).floor().clamp(
+          0,
+          pairs.length - maxVisibleIcons,
+        );
+        final visiblePairs = pairs.sublist(
+          startIndex,
+          startIndex + maxVisibleIcons,
+        );
         final clock = cycleProgress * cycleMs;
 
         return Row(
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            for (var visibleIndex = 0;
-                visibleIndex < visiblePairs.length;
-                visibleIndex++)
+            for (
+              var visibleIndex = 0;
+              visibleIndex < visiblePairs.length;
+              visibleIndex++
+            )
               Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: heroIconSpacing / 2),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: heroIconSpacing / 2,
+                ),
                 child: HeroIconButton(
                   iconPair: visiblePairs[visibleIndex],
                   isWiped: () {

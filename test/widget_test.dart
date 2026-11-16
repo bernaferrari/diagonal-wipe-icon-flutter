@@ -1,13 +1,11 @@
 import 'package:diagonal_wipe_icon/diagonal_wipe_icon.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   Widget buildHost(Widget child) {
     return MaterialApp(
-      home: Scaffold(
-        body: Center(child: child),
-      ),
+      home: Scaffold(body: Center(child: child)),
     );
   }
 
@@ -262,9 +260,7 @@ void main() {
       ),
     );
 
-    final Path basePath = baseClipPath.clipper!.getClip(
-      const Size.square(24),
-    );
+    final Path basePath = baseClipPath.clipper!.getClip(const Size.square(24));
     expect(basePath.contains(const Offset(22, 2)), isTrue);
     expect(basePath.contains(const Offset(2, 22)), isFalse);
   });
@@ -297,9 +293,7 @@ void main() {
       ),
     );
 
-    final Path basePath = baseClipPath.clipper!.getClip(
-      const Size.square(24),
-    );
+    final Path basePath = baseClipPath.clipper!.getClip(const Size.square(24));
     expect(basePath.contains(const Offset(22, 22)), isTrue);
     expect(basePath.contains(const Offset(2, 2)), isFalse);
   });

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 import '../../demo_catalog.dart';
 import 'material_symbol_assets.dart';
@@ -50,7 +50,7 @@ String buildDiagonalWipeUsageSnippet(MaterialWipeIconPair pair) {
   final disabledIcon = materialSymbolIconCode(disabledCode);
 
   return '''
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:diagonal_wipe_icon/diagonal_wipe_icon.dart';
 

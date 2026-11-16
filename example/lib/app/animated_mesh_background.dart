@@ -1,6 +1,6 @@
 import 'dart:math' as math;
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 class AnimatedMeshBackground extends StatelessWidget {
   const AnimatedMeshBackground({
@@ -14,8 +14,9 @@ class AnimatedMeshBackground extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final baseColor =
-        isDark ? const Color(0xFF0D0D0D) : const Color(0xFFFAFAFA);
+    final baseColor = isDark
+        ? const Color(0xFF0D0D0D)
+        : const Color(0xFFFAFAFA);
 
     return RepeatingAnimationBuilder<double>(
       duration: const Duration(seconds: 35),
@@ -48,17 +49,18 @@ class _AnimatedMeshPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..shader = RadialGradient(
-        colors: [seedColor.withValues(alpha: 0.04), Colors.transparent],
-      ).createShader(
-        Rect.fromCircle(
-          center: Offset(
-            size.width / 2 + (math.cos(phase) * 100),
-            size.height / 3 + (math.sin(phase) * 50),
-          ),
-          radius: 500,
-        ),
-      );
+      ..shader =
+          RadialGradient(
+            colors: [seedColor.withValues(alpha: 0.04), Colors.transparent],
+          ).createShader(
+            Rect.fromCircle(
+              center: Offset(
+                size.width / 2 + (math.cos(phase) * 100),
+                size.height / 3 + (math.sin(phase) * 50),
+              ),
+              radius: 500,
+            ),
+          );
 
     canvas
       ..drawRect(Offset.zero & size, Paint()..color = baseColor)

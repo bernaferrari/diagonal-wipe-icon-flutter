@@ -1,8 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:diagonal_wipe_icon/diagonal_wipe_icon.dart';
-import 'package:flutter/material.dart';
-import 'package:material_symbols_icons/symbols.dart';
+import 'package:material_ui/material_ui.dart';
 
 import '../demo_catalog.dart';
 import 'app_shared.dart';
@@ -103,9 +102,7 @@ class _HowItWorksDialogState extends State<HowItWorksDialog> {
 
     return Dialog(
       insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(28),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
       backgroundColor: Theme.of(context).colorScheme.surface,
       child: ConstrainedBox(
         constraints: BoxConstraints(
@@ -125,9 +122,8 @@ class _HowItWorksDialogState extends State<HowItWorksDialog> {
                 children: [
                   Text(
                     'How it works',
-                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                          fontWeight: FontWeight.w600,
-                        ),
+                    style: Theme.of(context).textTheme.headlineSmall
+                        ?.copyWith(fontWeight: FontWeight.w600),
                   ),
                   const SizedBox(height: 20),
                   Text(
@@ -135,8 +131,8 @@ class _HowItWorksDialogState extends State<HowItWorksDialog> {
                     'Material Icons does not, so this gives you the same '
                     'kind of morph without hand-drawing a custom vector.',
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                        ),
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
                   ),
                   const SizedBox(height: 20),
                   _howItWorksDirectionSelector(
@@ -147,19 +143,15 @@ class _HowItWorksDialogState extends State<HowItWorksDialog> {
                     },
                   ),
                   const SizedBox(height: 20),
-                  _howItWorksFlow(
-                    allowedColor,
-                    blockedColor,
-                    clampedProgress,
-                  ),
+                  _howItWorksFlow(allowedColor, blockedColor, clampedProgress),
                   const SizedBox(height: 20),
                   Text(
                     'Use two icons and one animated mask. It is much '
                     'easier and faster than building and maintaining '
                     'custom vector paths by hand.',
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                        ),
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
                   ),
                   const SizedBox(height: 20),
                   Align(
@@ -190,9 +182,7 @@ class _HowItWorksDialogState extends State<HowItWorksDialog> {
           child: Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Theme.of(context)
-                  .colorScheme
-                  .surfaceContainerHighest
+              color: Theme.of(context).colorScheme.surfaceContainerHighest
                   .withValues(alpha: 0.3),
               borderRadius: BorderRadius.circular(16),
             ),
@@ -217,8 +207,8 @@ class _HowItWorksDialogState extends State<HowItWorksDialog> {
                   child: Text(
                     '+',
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                        ),
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
                   ),
                 ),
                 Expanded(
@@ -240,8 +230,8 @@ class _HowItWorksDialogState extends State<HowItWorksDialog> {
                   child: Text(
                     '+',
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                        ),
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
                   ),
                 ),
                 Expanded(
@@ -265,18 +255,16 @@ class _HowItWorksDialogState extends State<HowItWorksDialog> {
         Text(
           '=',
           style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-                fontWeight: FontWeight.w600,
-              ),
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+            fontWeight: FontWeight.w600,
+          ),
         ),
         const SizedBox(width: 8),
         Expanded(
           child: Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Theme.of(context)
-                  .colorScheme
-                  .surfaceContainerHighest
+              color: Theme.of(context).colorScheme.surfaceContainerHighest
                   .withValues(alpha: 0.3),
               borderRadius: BorderRadius.circular(16),
             ),
@@ -365,9 +353,7 @@ class _HowItWorksDialogState extends State<HowItWorksDialog> {
                   painter: _HowItWorksBoundaryPainterWrapper(
                     progress: clampedProgress,
                     direction: _direction,
-                    color: Theme.of(context)
-                        .colorScheme
-                        .tertiary
+                    color: Theme.of(context).colorScheme.tertiary
                         .withValues(alpha: 0.8),
                   ),
                 ),
@@ -429,9 +415,9 @@ class _HowItWorksDialogState extends State<HowItWorksDialog> {
           Text(
             _howItWorksDirectionLabels[direction] ?? 'Top-left to bottom-right',
             style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                  color: colors.onSurfaceVariant,
-                  fontWeight: FontWeight.w500,
-                ),
+              color: colors.onSurfaceVariant,
+              fontWeight: FontWeight.w500,
+            ),
           ),
         ],
       ),
@@ -457,7 +443,11 @@ class _HowItWorksDirectionGrid extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             _HowItWorksDirectionButton(
-              icon: Symbols.north_west,
+              icon: const IconData(
+                0xf1e2,
+                fontFamily: 'MaterialSymbolsOutlined',
+                fontPackage: 'material_symbols_icons',
+              ),
               description: 'Bottom-right to top-left',
               selected: direction == WipeDirection.bottomRightToTopLeft,
               onPressed: () =>
@@ -465,14 +455,22 @@ class _HowItWorksDirectionGrid extends StatelessWidget {
             ),
             const SizedBox(width: 4),
             _HowItWorksDirectionButton(
-              icon: Symbols.keyboard_arrow_up,
+              icon: const IconData(
+                0xe316,
+                fontFamily: 'MaterialSymbolsOutlined',
+                fontPackage: 'material_symbols_icons',
+              ),
               description: 'Bottom to top',
               selected: direction == WipeDirection.bottomToTop,
               onPressed: () => onDirectionChange(WipeDirection.bottomToTop),
             ),
             const SizedBox(width: 4),
             _HowItWorksDirectionButton(
-              icon: Symbols.north_east,
+              icon: const IconData(
+                0xf1e1,
+                fontFamily: 'MaterialSymbolsOutlined',
+                fontPackage: 'material_symbols_icons',
+              ),
               description: 'Bottom-left to top-right',
               selected: direction == WipeDirection.bottomLeftToTopRight,
               onPressed: () =>
@@ -485,7 +483,12 @@ class _HowItWorksDirectionGrid extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             _HowItWorksDirectionButton(
-              icon: Symbols.keyboard_arrow_left,
+              icon: const IconData(
+                0xe314,
+                fontFamily: 'MaterialSymbolsOutlined',
+                fontPackage: 'material_symbols_icons',
+                matchTextDirection: true,
+              ),
               description: 'Right to left',
               selected: direction == WipeDirection.rightToLeft,
               onPressed: () => onDirectionChange(WipeDirection.rightToLeft),
@@ -493,7 +496,12 @@ class _HowItWorksDirectionGrid extends StatelessWidget {
             const SizedBox(width: 4),
             const SizedBox(width: 44, height: 44),
             _HowItWorksDirectionButton(
-              icon: Symbols.keyboard_arrow_right,
+              icon: const IconData(
+                0xe315,
+                fontFamily: 'MaterialSymbolsOutlined',
+                fontPackage: 'material_symbols_icons',
+                matchTextDirection: true,
+              ),
               description: 'Left to right',
               selected: direction == WipeDirection.leftToRight,
               onPressed: () => onDirectionChange(WipeDirection.leftToRight),
@@ -505,7 +513,11 @@ class _HowItWorksDirectionGrid extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             _HowItWorksDirectionButton(
-              icon: Symbols.south_west,
+              icon: const IconData(
+                0xf1e5,
+                fontFamily: 'MaterialSymbolsOutlined',
+                fontPackage: 'material_symbols_icons',
+              ),
               description: 'Top-right to bottom-left',
               selected: direction == WipeDirection.topRightToBottomLeft,
               onPressed: () =>
@@ -513,14 +525,22 @@ class _HowItWorksDirectionGrid extends StatelessWidget {
             ),
             const SizedBox(width: 4),
             _HowItWorksDirectionButton(
-              icon: Symbols.keyboard_arrow_down,
+              icon: const IconData(
+                0xe313,
+                fontFamily: 'MaterialSymbolsOutlined',
+                fontPackage: 'material_symbols_icons',
+              ),
               description: 'Top to bottom',
               selected: direction == WipeDirection.topToBottom,
               onPressed: () => onDirectionChange(WipeDirection.topToBottom),
             ),
             const SizedBox(width: 4),
             _HowItWorksDirectionButton(
-              icon: Symbols.south_east,
+              icon: const IconData(
+                0xf1e4,
+                fontFamily: 'MaterialSymbolsOutlined',
+                fontPackage: 'material_symbols_icons',
+              ),
               description: 'Top-left to bottom-right',
               selected: direction == WipeDirection.topLeftToBottomRight,
               onPressed: () =>
@@ -597,8 +617,9 @@ class _HowItWorksDirectionButtonState extends State<_HowItWorksDirectionButton>
     final background = widget.selected
         ? colors.primaryContainer
         : colors.surfaceContainerHighest.withValues(alpha: 0.3);
-    final iconColor =
-        widget.selected ? colors.onPrimaryContainer : colors.onSurfaceVariant;
+    final iconColor = widget.selected
+        ? colors.onPrimaryContainer
+        : colors.onSurfaceVariant;
     return Semantics(
       selected: widget.selected,
       button: true,
@@ -626,11 +647,7 @@ class _HowItWorksDirectionButtonState extends State<_HowItWorksDirectionButton>
                 color: background,
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Icon(
-                widget.icon,
-                size: 24,
-                color: iconColor,
-              ),
+              child: Icon(widget.icon, size: 24, color: iconColor),
             ),
           ),
         ),
@@ -705,9 +722,7 @@ class _HowItWorksBoundaryPainterWrapper extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(
-    covariant _HowItWorksBoundaryPainterWrapper oldDelegate,
-  ) {
+  bool shouldRepaint(covariant _HowItWorksBoundaryPainterWrapper oldDelegate) {
     return oldDelegate.progress != progress ||
         oldDelegate.direction != direction ||
         oldDelegate.color != color;

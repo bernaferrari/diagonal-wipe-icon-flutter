@@ -335,8 +335,7 @@ enum MaterialSymbolName {
   password2Off,
   smartCardReaderOff,
   tamperDetectionOff,
-  wifiTetheringOff,
-  ;
+  wifiTetheringOff;
 
   String get catalogName {
     final value = name;

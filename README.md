@@ -39,7 +39,7 @@ flutter pub add diagonal_wipe_icon
 Or add it manually to your `pubspec.yaml`:
 ```yaml
 dependencies:
-  diagonal_wipe_icon: ^0.2.1
+  diagonal_wipe_icon: ^0.3.0
 ```
 
 Then, use it anywhere you would typically place an `Icon`, such as inside an `IconButton` or a `GestureDetector`:

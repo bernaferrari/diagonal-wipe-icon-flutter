@@ -1,7 +1,6 @@
 import 'dart:math' as math;
 
-import 'package:flutter/material.dart';
-import 'package:material_symbols_icons/symbols.dart';
+import 'package:material_ui/material_ui.dart';
 
 Path _buildAppTopBarXPath() {
   final path = Path();
@@ -90,9 +89,8 @@ class AnimatedTopBar extends StatelessWidget implements PreferredSizeWidget {
         opacity: scrollTitleAlpha,
         child: Text(
           'Diagonal Wipe Icons for Flutter',
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
+          style: Theme.of(context).textTheme.titleMedium
+              ?.copyWith(fontWeight: FontWeight.w600),
         ),
       ),
       backgroundColor: colors.surface.withValues(alpha: 0.95),
@@ -133,8 +131,9 @@ class AnimatedTopBar extends StatelessWidget implements PreferredSizeWidget {
               ),
               const SizedBox(width: 8),
               IconButton(
-                tooltip:
-                    isDark ? 'Switch to light mode' : 'Switch to dark mode',
+                tooltip: isDark
+                    ? 'Switch to light mode'
+                    : 'Switch to dark mode',
                 onPressed: onToggleDark,
                 constraints: const BoxConstraints(minHeight: 40, minWidth: 40),
                 padding: EdgeInsets.zero,
@@ -142,7 +141,17 @@ class AnimatedTopBar extends StatelessWidget implements PreferredSizeWidget {
                 splashRadius: 18,
                 style: _topBarButtonStyle(),
                 icon: Icon(
-                  isDark ? Symbols.light_mode : Symbols.dark_mode,
+                  isDark
+                      ? const IconData(
+                          0xe518,
+                          fontFamily: 'MaterialSymbolsOutlined',
+                          fontPackage: 'material_symbols_icons',
+                        )
+                      : const IconData(
+                          0xe51c,
+                          fontFamily: 'MaterialSymbolsOutlined',
+                          fontPackage: 'material_symbols_icons',
+                        ),
                   size: 22,
                   color: iconColor,
                 ),
@@ -169,10 +178,7 @@ class AnimatedTopBar extends StatelessWidget implements PreferredSizeWidget {
 }
 
 class _TopBarVectorIcon extends StatelessWidget {
-  const _TopBarVectorIcon({
-    required this.path,
-    required this.color,
-  });
+  const _TopBarVectorIcon({required this.path, required this.color});
 
   final Path path;
   final Color color;
@@ -183,20 +189,14 @@ class _TopBarVectorIcon extends StatelessWidget {
       width: 22,
       height: 22,
       child: CustomPaint(
-        painter: _TopBarVectorIconPainter(
-          path: path,
-          color: color,
-        ),
+        painter: _TopBarVectorIconPainter(path: path, color: color),
       ),
     );
   }
 }
 
 class _TopBarVectorIconPainter extends CustomPainter {
-  const _TopBarVectorIconPainter({
-    required this.path,
-    required this.color,
-  });
+  const _TopBarVectorIconPainter({required this.path, required this.color});
 
   final Path path;
   final Color color;

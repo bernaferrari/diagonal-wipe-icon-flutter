@@ -28,14 +28,14 @@ class MaterialWipeIconPair {
     required String disabledIconName,
     String? enabledCodeIconName,
     String? disabledCodeIconName,
-  })  : enabledIcon = _requiredSymbolName(enabledIconName),
-        disabledIcon = _requiredSymbolName(disabledIconName),
-        enabledCodeIcon = enabledCodeIconName == null
-            ? null
-            : _requiredSymbolName(enabledCodeIconName),
-        disabledCodeIcon = disabledCodeIconName == null
-            ? null
-            : _requiredSymbolName(disabledCodeIconName);
+  }) : enabledIcon = _requiredSymbolName(enabledIconName),
+       disabledIcon = _requiredSymbolName(disabledIconName),
+       enabledCodeIcon = enabledCodeIconName == null
+           ? null
+           : _requiredSymbolName(enabledCodeIconName),
+       disabledCodeIcon = disabledCodeIconName == null
+           ? null
+           : _requiredSymbolName(disabledCodeIconName);
 
   MaterialWipeIconPair.symbols({
     required String label,
@@ -44,12 +44,12 @@ class MaterialWipeIconPair {
     MaterialSymbolName? enabledCodeIcon,
     MaterialSymbolName? disabledCodeIcon,
   }) : this(
-          label: label,
-          enabledIconName: enabledIcon.catalogName,
-          disabledIconName: disabledIcon.catalogName,
-          enabledCodeIconName: enabledCodeIcon?.catalogName,
-          disabledCodeIconName: disabledCodeIcon?.catalogName,
-        );
+         label: label,
+         enabledIconName: enabledIcon.catalogName,
+         disabledIconName: disabledIcon.catalogName,
+         enabledCodeIconName: enabledCodeIcon?.catalogName,
+         disabledCodeIconName: disabledCodeIcon?.catalogName,
+       );
 
   String get enabledIconName => enabledIcon.catalogName;
 

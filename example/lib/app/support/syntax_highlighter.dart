@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// A simple Dart syntax highlighter that creates a [TextSpan] tree with
 /// appropriate color coding for keywords, strings, comments, etc.
@@ -146,10 +146,12 @@ class DartSyntaxHighlighter {
       if (buffer.isEmpty) return;
       final text = buffer.toString();
       buffer.clear();
-      spans.add(TextSpan(
-        text: text,
-        style: color != null ? TextStyle(color: color) : null,
-      ));
+      spans.add(
+        TextSpan(
+          text: text,
+          style: color != null ? TextStyle(color: color) : null,
+        ),
+      );
     }
 
     while (i < code.length) {
@@ -255,19 +257,41 @@ class DartSyntaxHighlighter {
         buffer.clear();
 
         if (_keywords.contains(word)) {
-          spans
-              .add(TextSpan(text: word, style: TextStyle(color: keywordColor)));
+          spans.add(
+            TextSpan(
+              text: word,
+              style: TextStyle(color: keywordColor),
+            ),
+          );
         } else if (_types.contains(word)) {
-          spans.add(TextSpan(text: word, style: TextStyle(color: typeColor)));
+          spans.add(
+            TextSpan(
+              text: word,
+              style: TextStyle(color: typeColor),
+            ),
+          );
         } else if (_builtInFunctions.contains(word)) {
           spans.add(
-              TextSpan(text: word, style: TextStyle(color: functionColor)));
+            TextSpan(
+              text: word,
+              style: TextStyle(color: functionColor),
+            ),
+          );
         } else if (word.isNotEmpty && word[0] == word[0].toUpperCase()) {
           // Likely a class name
-          spans.add(TextSpan(text: word, style: TextStyle(color: classColor)));
+          spans.add(
+            TextSpan(
+              text: word,
+              style: TextStyle(color: classColor),
+            ),
+          );
         } else {
-          spans
-              .add(TextSpan(text: word, style: TextStyle(color: defaultColor)));
+          spans.add(
+            TextSpan(
+              text: word,
+              style: TextStyle(color: defaultColor),
+            ),
+          );
         }
         continue;
       }
@@ -282,7 +306,11 @@ class DartSyntaxHighlighter {
         final annotation = buffer.toString();
         buffer.clear();
         spans.add(
-            TextSpan(text: annotation, style: TextStyle(color: classColor)));
+          TextSpan(
+            text: annotation,
+            style: TextStyle(color: classColor),
+          ),
+        );
         continue;
       }
 
@@ -352,7 +380,8 @@ class SyntaxHighlightedCode extends StatelessWidget {
         width: double.infinity,
         child: SelectableText.rich(
           highlighter.highlight(code),
-          style: style ??
+          style:
+              style ??
               TextStyle(
                 fontFamily: 'monospace',
                 fontSize: 13,

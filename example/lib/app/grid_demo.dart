@@ -1,5 +1,5 @@
 import 'package:diagonal_wipe_icon/diagonal_wipe_icon.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 import '../demo_catalog.dart';
 import 'app_shared.dart';
@@ -92,12 +92,14 @@ class _DiagonalWipeIconGridDemoState extends State<DiagonalWipeIconGridDemo> {
       builder: (context, constraints) {
         final horizontalPadding = constraints.maxWidth > uiGridMaxContentWidth
             ? ((constraints.maxWidth - uiGridMaxContentWidth) / 2) +
-                uiPageHorizontalPadding
+                  uiPageHorizontalPadding
             : uiPageHorizontalPadding;
         final contentWidth = (constraints.maxWidth - (horizontalPadding * 2))
             .clamp(uiGridItemSlotWidth, double.infinity);
-        final columns =
-            (contentWidth / uiGridItemSlotWidth).toInt().clamp(1, 20);
+        final columns = (contentWidth / uiGridItemSlotWidth).toInt().clamp(
+          1,
+          20,
+        );
         final sectionRows = _sectionRowsForColumns(columns);
         final itemCount = _itemCountForColumns(columns);
 
@@ -105,7 +107,7 @@ class _DiagonalWipeIconGridDemoState extends State<DiagonalWipeIconGridDemo> {
           controller: widget.scrollController,
           padding: const EdgeInsets.only(top: 0, bottom: 48),
           itemCount: itemCount,
-          separatorBuilder: (_, __) => const SizedBox(height: 12),
+          separatorBuilder: (_, _) => const SizedBox(height: 12),
           itemBuilder: (context, index) {
             var remaining = index;
             if (remaining == 0) {
@@ -116,9 +118,11 @@ class _DiagonalWipeIconGridDemoState extends State<DiagonalWipeIconGridDemo> {
             }
             remaining -= 1;
 
-            for (var sectionIndex = 0;
-                sectionIndex < iconSections.length;
-                sectionIndex++) {
+            for (
+              var sectionIndex = 0;
+              sectionIndex < iconSections.length;
+              sectionIndex++
+            ) {
               final section = iconSections[sectionIndex];
               final rows = sectionRows[sectionIndex];
 
@@ -194,10 +198,8 @@ class MaterialWipeIconSectionHeader extends StatelessWidget {
           child: Text(
             section.title,
             textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: -0.5,
-                ),
+            style: Theme.of(context).textTheme.headlineSmall
+                ?.copyWith(fontWeight: FontWeight.w700, letterSpacing: -0.5),
           ),
         ),
         const SizedBox(height: 8),
@@ -207,9 +209,9 @@ class MaterialWipeIconSectionHeader extends StatelessWidget {
             section.subtitle,
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  fontWeight: FontWeight.w400,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
+              fontWeight: FontWeight.w400,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
           ),
         ),
       ],
@@ -303,21 +305,19 @@ class _DiagonalWipeIconGridItemState extends State<DiagonalWipeIconGridItem>
     final Color borderColor = _pressed
         ? widget.accentColor
         : _hovered
-            ? widget.accentColor.withValues(alpha: 0.5)
-            : Colors.transparent;
+        ? widget.accentColor.withValues(alpha: 0.5)
+        : Colors.transparent;
     final Color textColor = _pressed
         ? widget.accentColor
         : _hovered
-            ? Theme.of(context).colorScheme.onSurface
-            : Theme.of(context).colorScheme.onSurfaceVariant;
+        ? Theme.of(context).colorScheme.onSurface
+        : Theme.of(context).colorScheme.onSurfaceVariant;
     final Color iconBgColor = _pressed
         ? widget.accentColor.withValues(alpha: 0.2)
         : _hovered
-            ? widget.accentColor.withValues(alpha: 0.12)
-            : Theme.of(context)
-                .colorScheme
-                .surfaceContainerHighest
-                .withValues(alpha: 0.5);
+        ? widget.accentColor.withValues(alpha: 0.12)
+        : Theme.of(context).colorScheme.surfaceContainerHighest
+              .withValues(alpha: 0.5);
 
     return Semantics(
       button: true,
@@ -343,8 +343,10 @@ class _DiagonalWipeIconGridItemState extends State<DiagonalWipeIconGridItem>
               child: SizedBox(
                 width: uiGridItemSlotWidth,
                 child: Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 20,
+                  ),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.center,
@@ -372,10 +374,12 @@ class _DiagonalWipeIconGridItemState extends State<DiagonalWipeIconGridItem>
                                   wipedIcon: fallbackIconData(
                                     widget.iconPair.disabledIcon,
                                   ),
-                                  baseTint:
-                                      Theme.of(context).colorScheme.primary,
-                                  wipedTint:
-                                      Theme.of(context).colorScheme.secondary,
+                                  baseTint: Theme.of(context)
+                                      .colorScheme
+                                      .primary,
+                                  wipedTint: Theme.of(context)
+                                      .colorScheme
+                                      .secondary,
                                   size: 44,
                                   animationStyle: animationStyle,
                                 ),
@@ -406,10 +410,11 @@ class _DiagonalWipeIconGridItemState extends State<DiagonalWipeIconGridItem>
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: textColor,
-                              fontWeight:
-                                  _hovered ? FontWeight.w600 : FontWeight.w500,
-                            ),
+                          color: textColor,
+                          fontWeight: _hovered
+                              ? FontWeight.w600
+                              : FontWeight.w500,
+                        ),
                       ),
                     ],
                   ),

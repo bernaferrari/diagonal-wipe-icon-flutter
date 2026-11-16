@@ -1,7 +1,7 @@
 import 'dart:async' as async;
 
 import 'package:diagonal_wipe_icon/diagonal_wipe_icon.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../demo_catalog.dart';
@@ -34,7 +34,7 @@ class _DiagonalWipeIconFlutterAppState extends State<DiagonalWipeIconFlutterApp>
   bool _isLoopWiped = false;
   bool _isDark =
       WidgetsBinding.instance.platformDispatcher.platformBrightness ==
-          Brightness.dark;
+      Brightness.dark;
   double _globalAnimationMultiplier = 1.0;
   int _selectedSeedIndex = 3;
   bool _showHowItWorks = false;
@@ -112,8 +112,9 @@ class _DiagonalWipeIconFlutterAppState extends State<DiagonalWipeIconFlutterApp>
 
   void _toggleSlowMode() {
     setState(() {
-      _globalAnimationMultiplier =
-          _globalAnimationMultiplier == 1.0 ? slowAnimationMultiplier : 1.0;
+      _globalAnimationMultiplier = _globalAnimationMultiplier == 1.0
+          ? slowAnimationMultiplier
+          : 1.0;
     });
     if (_isLooping) _startLoop();
   }
@@ -128,7 +129,8 @@ class _DiagonalWipeIconFlutterAppState extends State<DiagonalWipeIconFlutterApp>
     final navContext = _rootNavigatorKey.currentContext;
     if (_showHowItWorks || !mounted || navContext == null) return;
 
-    final pair = materialSymbolPairByLabel(_howItWorksPairLabel) ??
+    final pair =
+        materialSymbolPairByLabel(_howItWorksPairLabel) ??
         coreMaterialWipeIconCatalog.first;
 
     setState(() => _showHowItWorks = true);
@@ -176,7 +178,6 @@ class _DiagonalWipeIconFlutterAppState extends State<DiagonalWipeIconFlutterApp>
   Widget build(BuildContext context) {
     final selectedSeed = themeSeedOptions[_selectedSeedIndex];
     final theme = ThemeData(
-      useMaterial3: true,
       colorScheme: ColorScheme.fromSeed(
         seedColor: selectedSeed.color,
         brightness: _isDark ? Brightness.dark : Brightness.light,
@@ -339,7 +340,7 @@ class _ScaffoldContentState extends State<_ScaffoldContent> {
                 .toDouble();
         final clamped =
             (quantized * uiScrollProgressQuantizationSteps).floor() /
-                uiScrollProgressQuantizationSteps;
+            uiScrollProgressQuantizationSteps;
 
         final currentOffset = notification.metrics.pixels;
         if (_lastScrollOffset == currentOffset) return false;

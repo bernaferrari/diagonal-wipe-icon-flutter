@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 
 const WipeDirection _defaultWipeDirection = WipeDirection.topLeftToBottomRight;
 const double _defaultSeamOverlapPx = 0.8;
@@ -22,8 +22,8 @@ class AnimatedDiagonalWipe extends StatefulWidget {
   const AnimatedDiagonalWipe({
     super.key,
     required this.isWiped,
-    required Widget baseChild,
-    required Widget wipedChild,
+    required Widget this._baseChild,
+    required Widget this._wipedChild,
     this.baseTint,
     this.wipedTint,
     this.semanticsLabel,
@@ -32,11 +32,9 @@ class AnimatedDiagonalWipe extends StatefulWidget {
     this.direction = _defaultWipeDirection,
     this.reverseDirection,
     this.seamOverlapPx = _defaultSeamOverlapPx,
-  })  : _baseChild = baseChild,
-        _wipedChild = wipedChild,
-        _baseIconData = null,
-        _wipedIconData = null,
-        assert(seamOverlapPx >= 0);
+  }) : _baseIconData = null,
+       _wipedIconData = null,
+       assert(seamOverlapPx >= 0);
 
   /// Creates a wipe transition between two [IconData] values.
   ///
@@ -60,11 +58,11 @@ class AnimatedDiagonalWipe extends StatefulWidget {
     this.direction = _defaultWipeDirection,
     this.reverseDirection,
     this.seamOverlapPx = _defaultSeamOverlapPx,
-  })  : _baseChild = null,
-        _wipedChild = null,
-        _baseIconData = baseIcon,
-        _wipedIconData = wipedIcon,
-        assert(seamOverlapPx >= 0);
+  }) : _baseChild = null,
+       _wipedChild = null,
+       _baseIconData = baseIcon,
+       _wipedIconData = wipedIcon,
+       assert(seamOverlapPx >= 0);
 
   final bool isWiped;
   final Color? baseTint;
@@ -282,8 +280,8 @@ class _DiagonalWipeTransitionState extends State<DiagonalWipeTransition> {
     final nextIsReversing = nextValue < _lastProgressValue - _eps
         ? true
         : nextValue > _lastProgressValue + _eps
-            ? false
-            : _isReversing;
+        ? false
+        : _isReversing;
     _lastProgressValue = nextValue;
     if ((nextMode == _mode && nextIsReversing == _isReversing) || !mounted) {
       _isReversing = nextIsReversing;
@@ -301,10 +299,7 @@ class _DiagonalWipeTransitionState extends State<DiagonalWipeTransition> {
     return widget.reverseDirection ?? widget.direction.opposite;
   }
 
-  Widget _layer({
-    required Widget child,
-    required bool inverse,
-  }) {
+  Widget _layer({required Widget child, required bool inverse}) {
     return ClipPath(
       clipper: _WipeClipper(
         progress: widget.progress,
@@ -319,9 +314,7 @@ class _DiagonalWipeTransitionState extends State<DiagonalWipeTransition> {
 
   Widget _frame(Widget child) {
     return ClipRect(
-      child: SizedBox.expand(
-        child: Center(child: child),
-      ),
+      child: SizedBox.expand(child: Center(child: child)),
     );
   }
 
@@ -332,18 +325,15 @@ class _DiagonalWipeTransitionState extends State<DiagonalWipeTransition> {
       _RenderMode.baseOnly => _frame(widget.baseChild),
       _RenderMode.wipedOnly => _frame(widget.wipedChild),
       _RenderMode.wiping => Stack(
-          fit: StackFit.expand,
-          children: [
-            _layer(child: widget.baseChild, inverse: baseInverse),
-            _layer(child: widget.wipedChild, inverse: !baseInverse),
-          ],
-        ),
+        fit: StackFit.expand,
+        children: [
+          _layer(child: widget.baseChild, inverse: baseInverse),
+          _layer(child: widget.wipedChild, inverse: !baseInverse),
+        ],
+      ),
     };
 
-    final boxed = SizedBox.square(
-      dimension: widget.size,
-      child: content,
-    );
+    final boxed = SizedBox.square(dimension: widget.size, child: content);
 
     return widget.semanticsLabel == null
         ? boxed
@@ -366,19 +356,15 @@ enum WipeDirection {
   final Offset axis;
 
   WipeDirection get opposite => switch (this) {
-        WipeDirection.topLeftToBottomRight =>
-          WipeDirection.bottomRightToTopLeft,
-        WipeDirection.bottomRightToTopLeft =>
-          WipeDirection.topLeftToBottomRight,
-        WipeDirection.topRightToBottomLeft =>
-          WipeDirection.bottomLeftToTopRight,
-        WipeDirection.bottomLeftToTopRight =>
-          WipeDirection.topRightToBottomLeft,
-        WipeDirection.topToBottom => WipeDirection.bottomToTop,
-        WipeDirection.bottomToTop => WipeDirection.topToBottom,
-        WipeDirection.leftToRight => WipeDirection.rightToLeft,
-        WipeDirection.rightToLeft => WipeDirection.leftToRight,
-      };
+    WipeDirection.topLeftToBottomRight => WipeDirection.bottomRightToTopLeft,
+    WipeDirection.bottomRightToTopLeft => WipeDirection.topLeftToBottomRight,
+    WipeDirection.topRightToBottomLeft => WipeDirection.bottomLeftToTopRight,
+    WipeDirection.bottomLeftToTopRight => WipeDirection.topRightToBottomLeft,
+    WipeDirection.topToBottom => WipeDirection.bottomToTop,
+    WipeDirection.bottomToTop => WipeDirection.topToBottom,
+    WipeDirection.leftToRight => WipeDirection.rightToLeft,
+    WipeDirection.rightToLeft => WipeDirection.leftToRight,
+  };
 }
 
 class _WipeClipper extends CustomClipper<Path> {
@@ -530,11 +516,11 @@ Path buildWipeRevealPath({
 }
 
 List<Offset> _rectCorners(Size size) => <Offset>[
-      Offset.zero,
-      Offset(size.width, 0),
-      Offset(size.width, size.height),
-      Offset(0, size.height),
-    ];
+  Offset.zero,
+  Offset(size.width, 0),
+  Offset(size.width, size.height),
+  Offset(0, size.height),
+];
 
 ({double min, double max}) _projectionRange(Size size, Offset axis) {
   var minValue = double.infinity;
@@ -594,10 +580,8 @@ List<Offset> _clipRectWithHalfPlane(Size size, Offset axis, double threshold) {
 double _project(Offset point, Offset axis) =>
     point.dx * axis.dx + point.dy * axis.dy;
 
-Offset _lerp(Offset a, Offset b, double t) => Offset(
-      a.dx + (b.dx - a.dx) * t,
-      a.dy + (b.dy - a.dy) * t,
-    );
+Offset _lerp(Offset a, Offset b, double t) =>
+    Offset(a.dx + (b.dx - a.dx) * t, a.dy + (b.dy - a.dy) * t);
 
 bool _samePoint(Offset a, Offset b) {
   final dx = a.dx - b.dx;

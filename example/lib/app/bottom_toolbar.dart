@@ -1,7 +1,6 @@
 import 'dart:math' as math;
 
-import 'package:flutter/material.dart';
-import 'package:material_symbols_icons/symbols.dart';
+import 'package:material_ui/material_ui.dart';
 
 import 'support/support.dart';
 import 'app_shared.dart';
@@ -56,9 +55,11 @@ class BottomToolbar extends StatelessWidget {
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            for (var index = 0;
-                                index < themeSeedOptions.length;
-                                index++)
+                            for (
+                              var index = 0;
+                              index < themeSeedOptions.length;
+                              index++
+                            )
                               _ThemeColorSwatch(
                                 seed: themeSeedOptions[index],
                                 selected: selectedSeedIndex == index,
@@ -97,13 +98,18 @@ class BottomToolbar extends StatelessWidget {
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(Symbols.speed, size: 17),
+                          const Icon(
+                            IconData(
+                              0xe9e4,
+                              fontFamily: 'MaterialSymbolsOutlined',
+                              fontPackage: 'material_symbols_icons',
+                            ),
+                            size: 17,
+                          ),
                           const SizedBox(width: 6),
                           Text(
                             isSlowMode ? '0.5x' : '1x',
-                            style: Theme.of(context)
-                                .textTheme
-                                .labelMedium
+                            style: Theme.of(context).textTheme.labelMedium
                                 ?.copyWith(
                                   fontWeight: isSlowMode
                                       ? FontWeight.w600
@@ -120,8 +126,9 @@ class BottomToolbar extends StatelessWidget {
                       style: FilledButton.styleFrom(
                         backgroundColor: isLooping
                             ? toolbarTheme.primaryContainer
-                            : toolbarTheme.secondaryContainer
-                                .withValues(alpha: 0.78),
+                            : toolbarTheme.secondaryContainer.withValues(
+                                alpha: 0.78,
+                              ),
                         foregroundColor: isLooping
                             ? toolbarTheme.onPrimaryContainer
                             : toolbarTheme.onSecondaryContainer,
@@ -133,15 +140,23 @@ class BottomToolbar extends StatelessWidget {
                       child: Row(
                         children: [
                           Icon(
-                            isLooping ? Symbols.stop : Symbols.play_arrow,
+                            isLooping
+                                ? const IconData(
+                                    0xe047,
+                                    fontFamily: 'MaterialSymbolsOutlined',
+                                    fontPackage: 'material_symbols_icons',
+                                  )
+                                : const IconData(
+                                    0xe037,
+                                    fontFamily: 'MaterialSymbolsOutlined',
+                                    fontPackage: 'material_symbols_icons',
+                                  ),
                             size: 17,
                           ),
                           const SizedBox(width: 6),
                           Text(
                             isLooping ? 'Stop' : 'Loop',
-                            style: Theme.of(context)
-                                .textTheme
-                                .labelMedium
+                            style: Theme.of(context).textTheme.labelMedium
                                 ?.copyWith(
                                   fontWeight: isLooping
                                       ? FontWeight.w600
@@ -247,7 +262,8 @@ class _ThemeColorSwatchState extends State<_ThemeColorSwatch>
   Widget build(BuildContext context) {
     final bool showSelected = widget.selected;
     final Color swatchColor = widget.seed.color;
-    final bool highContrastText = (0.2126 * swatchColor.r +
+    final bool highContrastText =
+        (0.2126 * swatchColor.r +
             0.7152 * swatchColor.g +
             0.0722 * swatchColor.b) >
         0.5;
@@ -259,8 +275,9 @@ class _ThemeColorSwatchState extends State<_ThemeColorSwatch>
     final double rotation = 8 * selectionProgress;
     final double checkOpacity = selectionProgress;
     final double glowOpacity = selectionProgress;
-    final Color checkColor =
-        highContrastText ? Colors.black.withValues(alpha: 0.75) : Colors.white;
+    final Color checkColor = highContrastText
+        ? Colors.black.withValues(alpha: 0.75)
+        : Colors.white;
 
     return Semantics(
       button: true,
@@ -322,8 +339,9 @@ class _ThemeColorSwatchState extends State<_ThemeColorSwatch>
                             children: [
                               Container(
                                 decoration: BoxDecoration(
-                                  borderRadius:
-                                      BorderRadius.circular(cornerRadius),
+                                  borderRadius: BorderRadius.circular(
+                                    cornerRadius,
+                                  ),
                                   gradient: const LinearGradient(
                                     begin: Alignment.topLeft,
                                     end: Alignment.bottomRight,
@@ -340,7 +358,11 @@ class _ThemeColorSwatchState extends State<_ThemeColorSwatch>
                                   child: Opacity(
                                     opacity: checkOpacity,
                                     child: Icon(
-                                      Symbols.check,
+                                      const IconData(
+                                        0xe668,
+                                        fontFamily: 'MaterialSymbolsOutlined',
+                                        fontPackage: 'material_symbols_icons',
+                                      ),
                                       size: 16,
                                       color: checkColor,
                                     ),

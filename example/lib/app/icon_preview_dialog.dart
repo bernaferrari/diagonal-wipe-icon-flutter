@@ -2,9 +2,8 @@ import 'dart:async' as async;
 import 'dart:math' as math;
 
 import 'package:diagonal_wipe_icon/diagonal_wipe_icon.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
-import 'package:material_symbols_icons/symbols.dart';
 
 import '../demo_catalog.dart';
 import 'app_shared.dart';
@@ -107,8 +106,9 @@ class _IconPreviewDialogState extends State<IconPreviewDialog> {
     _loopDelayTimer = async.Timer(Duration(milliseconds: delayMillis), () {
       completer.complete();
     });
-    return completer.future
-        .then((_) => mounted && token == _loopToken && _isPlaying);
+    return completer.future.then(
+      (_) => mounted && token == _loopToken && _isPlaying,
+    );
   }
 
   bool get _isSlow => _previewSlowMode || widget.baseAnimationMultiplier > 1.0;
@@ -119,8 +119,8 @@ class _IconPreviewDialogState extends State<IconPreviewDialog> {
   bool get _previewIsWiped => _isPlaying
       ? _isWiped
       : _hasHoveredWhilePaused
-          ? _previewHovered
-          : _pausedTapWiped;
+      ? _previewHovered
+      : _pausedTapWiped;
 
   void _setPreviewHovered(bool hovered) {
     if (_previewHovered == hovered) return;
@@ -193,9 +193,7 @@ class _IconPreviewDialogState extends State<IconPreviewDialog> {
     final contentMaxWidth = math.min(dialogMaxWidth, 620.0);
     final dialogMaxHeight = MediaQuery.sizeOf(context).height * 0.94;
     return Dialog(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(28),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
       backgroundColor: Theme.of(context).colorScheme.surface,
       insetPadding: const EdgeInsets.all(16),
       child: ConstrainedBox(
@@ -244,9 +242,8 @@ class _IconPreviewDialogState extends State<IconPreviewDialog> {
       children: [
         Text(
           widget.iconPair.label,
-          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
+          style: Theme.of(context).textTheme.headlineSmall
+              ?.copyWith(fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 24),
         MouseRegion(
@@ -262,9 +259,7 @@ class _IconPreviewDialogState extends State<IconPreviewDialog> {
               height: 240,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(28),
-                color: Theme.of(context)
-                    .colorScheme
-                    .surfaceContainerHighest
+                color: Theme.of(context).colorScheme.surfaceContainerHighest
                     .withValues(alpha: 0.5),
               ),
               alignment: Alignment.center,
@@ -301,14 +296,28 @@ class _IconPreviewDialogState extends State<IconPreviewDialog> {
           children: [
             _PreviewDialogControl(
               label: _isPlaying ? 'Playing' : 'Paused',
-              icon: _isPlaying ? Symbols.pause : Symbols.play_arrow,
+              icon: _isPlaying
+                  ? const IconData(
+                      0xe034,
+                      fontFamily: 'MaterialSymbolsOutlined',
+                      fontPackage: 'material_symbols_icons',
+                    )
+                  : const IconData(
+                      0xe037,
+                      fontFamily: 'MaterialSymbolsOutlined',
+                      fontPackage: 'material_symbols_icons',
+                    ),
               selected: _isPlaying,
               onPressed: _togglePlaying,
             ),
             const SizedBox(width: 12),
             _PreviewDialogControl(
               label: _previewSlowMode ? '0.5x' : '1x',
-              icon: Symbols.speed,
+              icon: const IconData(
+                0xe9e4,
+                fontFamily: 'MaterialSymbolsOutlined',
+                fontPackage: 'material_symbols_icons',
+              ),
               selected: _previewSlowMode,
               onPressed: _toggleSlowMode,
             ),
@@ -322,9 +331,7 @@ class _IconPreviewDialogState extends State<IconPreviewDialog> {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
-        color: Theme.of(context)
-            .colorScheme
-            .surfaceContainerHighest
+        color: Theme.of(context).colorScheme.surfaceContainerHighest
             .withValues(alpha: 0.3),
       ),
       padding: const EdgeInsets.all(20),
@@ -337,9 +344,8 @@ class _IconPreviewDialogState extends State<IconPreviewDialog> {
               Expanded(
                 child: Text(
                   'Code',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
+                  style: Theme.of(context).textTheme.titleMedium
+                      ?.copyWith(fontWeight: FontWeight.w600),
                 ),
               ),
               MouseRegion(
@@ -366,7 +372,17 @@ class _IconPreviewDialogState extends State<IconPreviewDialog> {
                           : Colors.transparent,
                     ),
                     child: Icon(
-                      _isCopyFeedback ? Symbols.check : Symbols.content_copy,
+                      _isCopyFeedback
+                          ? const IconData(
+                              0xe668,
+                              fontFamily: 'MaterialSymbolsOutlined',
+                              fontPackage: 'material_symbols_icons',
+                            )
+                          : const IconData(
+                              0xe14d,
+                              fontFamily: 'MaterialSymbolsOutlined',
+                              fontPackage: 'material_symbols_icons',
+                            ),
                       size: 20,
                       color: _isCopyFeedback
                           ? Theme.of(context).colorScheme.primary
@@ -388,9 +404,7 @@ class _IconPreviewDialogState extends State<IconPreviewDialog> {
               padding: const EdgeInsets.all(16),
               child: SyntaxHighlightedCode(
                 code: snippet,
-                style: Theme.of(context)
-                    .textTheme
-                    .bodyMedium
+                style: Theme.of(context).textTheme.bodyMedium
                     ?.copyWith(fontSize: 13),
               ),
             ),
@@ -463,8 +477,9 @@ class _PreviewDialogControlState extends State<_PreviewDialogControl>
     final background = widget.selected
         ? colors.primaryContainer
         : (_hovered ? colors.surfaceContainerHighest : colors.surface);
-    final textColor =
-        widget.selected ? colors.onPrimaryContainer : colors.onSurfaceVariant;
+    final textColor = widget.selected
+        ? colors.onPrimaryContainer
+        : colors.onSurfaceVariant;
 
     return Semantics(
       button: true,
@@ -503,9 +518,9 @@ class _PreviewDialogControlState extends State<_PreviewDialogControl>
                   Text(
                     widget.label,
                     style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                          color: textColor,
-                          fontWeight: FontWeight.w500,
-                        ),
+                      color: textColor,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
                 ],
               ),
